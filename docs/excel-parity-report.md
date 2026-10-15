@@ -1,5 +1,9 @@
 # Excel parity report — 2026-10-15
 
+> **Update after Stage 2 (same day):** E12 and E13 were fixed. All parity checks now pass,
+> including the decision matrix (scores, weighted totals, rank order) and every COST ANALYSIS
+> column. E14 was kept as an intentional difference. The details below describe the state before Stage 2.
+
 | | |
 |---|---|
 | Workbook | `reference/MMT15603_Virtual_Machinability_Simulator.xlsx` |

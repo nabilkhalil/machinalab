@@ -113,9 +113,50 @@ test('CSV export contains trials and notes', async ({ page }) => {
   expect(csv.charCodeAt(0)).toBe(0xfeff); // BOM so Excel reads µ correctly
   const lines = csv.slice(1).split('\r\n');
   expect(lines[0]).toContain('"Trial","Vc_m_min","Feed_mm_rev"');
-  expect(lines).toHaveLength(1 + 9 + 1 + 6);
+  expect(lines[0]).toContain('"Tool_cost_RM_part","Batch_cycle_hours","Cost_T15_RM_part"');
+  // header + 9 trials + blank + student/group/scenario + 9 workbook prompts
+  expect(lines).toHaveLength(1 + 9 + 1 + 3 + 9);
   expect(lines[5]).toMatch(/^"5","150","0.15","0.5","964\.57541/);
-  expect(csv).toContain('"Group","G1"');
+  expect(csv).toContain('"Group / members","G1"');
+  expect(csv).toContain('"Effect of feed on Ra",""');
+});
+
+test('decision matrix ranks trials as the workbook does', async ({ page }) => {
+  await openPage(page, 'cost');
+  const ranked = page.locator('section', { hasText: 'Ranked trial decision matrix' }).locator('tbody tr');
+  const trialIds = await ranked.evaluateAll(rows => rows.map(r => Number(r.cells[1].textContent)));
+  expect(trialIds).toEqual([7, 8, 4, 1, 5, 9, 2, 6, 3]); // DECISION MATRIX!H5:H13
+  await expect(ranked.first().locator('td').nth(8)).toHaveText('69.99');
+});
+
+test('cost analysis table shows batch hours and tool-life sensitivity', async ({ page }) => {
+  await openPage(page, 'cost');
+  const trial7 = page.locator('#costAnalysis tbody tr').nth(6).locator('td');
+  await expect(trial7.nth(2)).toHaveText('RM 0.227');  // tool cost/part
+  await expect(trial7.nth(4)).toHaveText('42.6');      // batch cycle hours
+  await expect(trial7.nth(5)).toHaveText('RM 1.73');   // T = 15 min
+  await page.selectOption('select[data-key="scenario"]', 'B');
+  await expect(page.locator('#costAnalysis tbody tr').nth(6).locator('td').nth(4)).toHaveText('74.5');
+});
+
+test('workbook shows the nine student analysis prompts', async ({ page }) => {
+  await openPage(page, 'pbl');
+  await expect(page.locator('textarea[data-text]')).toHaveCount(9);
+  for (const label of ['Problem statement', 'Effect of feed on Ra', 'Recommended trial and reasons', 'Limitations / validation plan']) {
+    await expect(page.getByLabel(label, { exact: true })).toBeVisible();
+  }
+});
+
+test('notes saved before Stage 2 carry over to the new prompts', async ({ page }) => {
+  await page.evaluate(() => localStorage.setItem('machinalab-v1', JSON.stringify({
+    student: 'Ali', observations: 'old obs', recommendation: 'Trial 7', reflection: 'Need real Ra tests',
+  })));
+  await page.reload();
+  await openPage(page, 'pbl');
+  await expect(page.getByLabel('Recommended trial and reasons')).toHaveValue('Trial 7');
+  await expect(page.getByLabel('Limitations / validation plan')).toHaveValue('Need real Ra tests');
+  await expect(page.getByLabel('Other observations (optional)')).toHaveValue('old obs');
+  await expect(page.getByLabel('Problem statement')).toHaveValue('');
 });
 
 test('print layout hides navigation', async ({ page }) => {
@@ -160,5 +201,6 @@ test('S2: CSV neutralises spreadsheet formulas in student text', async ({ page }
   await page.fill('[data-text="observations"]', '=HYPERLINK("http://example.com","x")');
   const [download] = await Promise.all([page.waitForEvent('download'), page.click('#exportBtn')]);
   const csv = fs.readFileSync(await download.path(), 'utf8');
-  expect(csv).not.toContain('"Observations","=');
+  // No cell may begin with a formula trigger, whatever its label.
+  expect(csv).not.toMatch(/(^|,)"[=+\-@]/m);
 });

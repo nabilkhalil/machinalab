@@ -11,11 +11,11 @@ const crypto = require('crypto');
 const { loadLegacy } = require('./legacy-loader');
 
 const appPath = process.argv[2] || 'site/app.js';
-const outPath = process.argv[3] || 'tests/fixtures/baseline-v1.json';
+const outPath = process.argv[3] || 'tests/fixtures/baseline-v2.json';
 const { trials, scores, live, state, defaults } = loadLegacy(appPath);
 
 const keys = ['id', 'v', 'f', 'ap', 'rpm', 'mrr', 'ra', 'force', 'cutPower', 'inputPower',
-  'cutTime', 'cycle', 'cost', 'batchCost', 'feasible'];
+  'cutTime', 'cycle', 'cost', 'batchCost', 'feasible', 'toolCost', 'batchHours', 'costLife15', 'costLife30', 'costLife60'];
 const pick = r => Object.fromEntries(keys.filter(k => k in r).map(k => [k, r[k]]));
 
 const scenarios = {};
@@ -29,7 +29,7 @@ for (const code of ['BASE', 'A', 'B', 'C']) {
 }
 
 const baseline = {
-  description: 'Regression baseline of legacy app.js at default inputs. Characterisation only; not validated against the Excel workbook.',
+  description: 'Regression baseline of app.js at default inputs. v2 (Stage 2): decision scores and cost-analysis outputs aligned with the Excel workbook; BASE values verified by tests/unit/excel-parity.test.js.',
   generatedAt: new Date().toISOString(),
   sourceFile: path.basename(appPath),
   sourceSha256: crypto.createHash('sha256').update(fs.readFileSync(appPath)).digest('hex'),

@@ -63,10 +63,10 @@ risk; **L** = polish.
 | E8 | L | The overview's "Industrial challenge" text hard-codes Ø50→Ø49, 100 mm, 2 000 parts, 1.6 µm and 7.5 kW, which go stale when inputs change. | app.js:13 |
 | E9 | L | The weights total check uses exact `!== 100`, which is fragile for non-integer weights. | app.js:8 |
 | E10 | L | Trial ids use `i*3+j+1`, which assumes exactly three feed levels. | app.js:7 |
-| E12 | **H** | **Decision scores differ from the workbook.** Excel uses ratio-to-best for productivity, power and cost; JS uses min–max. Same best trial (7), but ranks 4–9 differ (trial 1 is 4th in Excel, 8th in JS). | app.js:19; DECISION MATRIX!C5:E13 |
-| E13 | M | The workbook's COST ANALYSIS outputs (batch hours, tool cost/part, cost at T = 15/30/60 min) aren't in the web app. | COST ANALYSIS!D:H |
-| E14 | L | JS adds a 1e-9 tolerance to the feasibility limits; Excel compares exactly. They differ only when Ra equals the limit (e.g. limit 1.5625, f = 0.2). Keep it and document it. | app.js:6 |
-| E15 | L | The workbook's STUDENT WORK sheet has 9 guided prompts (problem statement, assumptions, effect of feed on Ra, …). The web app has 3 free-text boxes. | STUDENT WORK!A5:A13 |
+| E12 | ~~H~~ | **Resolved in Stage 2 (scores now follow the workbook).** ~~Decision scores differ from the workbook.~~ Excel uses ratio-to-best for productivity, power and cost; JS uses min–max. Same best trial (7), but ranks 4–9 differ (trial 1 is 4th in Excel, 8th in JS). | app.js:19; DECISION MATRIX!C5:E13 |
+| E13 | ~~M~~ | **Resolved in Stage 2.** ~~The workbook's COST ANALYSIS outputs (batch hours, tool cost/part, cost at T = 15/30/60 min) aren't in the web app.~~ | COST ANALYSIS!D:H |
+| E14 | L | JS adds a 1e-9 tolerance to the feasibility limits; Excel compares exactly. They differ only when Ra equals the limit (e.g. limit 1.5625, f = 0.2). Keep it and document it. **Decided in Stage 2: kept (MODEL_CHANGELOG).** | app.js:6 |
+| E15 | ~~L~~ | **Resolved in Stage 2.** The workbook's STUDENT WORK sheet has 9 guided prompts (problem statement, assumptions, effect of feed on Ra, …). The web app has 3 free-text boxes. | STUDENT WORK!A5:A13 |
 | E11 | L | The model can't express an f ≥ rε validity warning, a tool-change time or a setup cost. These are possible extensions, through `model-change` only. | — |
 
 ### Security
@@ -168,7 +168,7 @@ Each stage is independently releasable and closes with the `stage-release` check
 | **2** Model extraction | `site/js/model.js` (pure, Class R refactor), `params.js` schema; `app.js` calls the model | Baseline identical at ≤ 1e-12; property tests pass |
 | **3** Validation and storage | `validate.js`; sanitised load; try/catch storage; results hidden when invalid; `esc()` everywhere | Corrupted-storage and XSS-payload tests pass; E2, S3, S4, S5 closed |
 | **4** Excel parity | **Done early (2026-10-15):** workbook in `reference/`; extractor, golden file and parity tests; report | 49 pass / 9 todo; E12–E15 raised |
-| **4b** Workbook alignment | Fix E12 scoring (class C); add E13 outputs (class E); baseline-v2 | All parity todos removed; needs lecturer approval |
+| **4b → done as Stage 2** Workbook alignment | Fixed E12 scoring (class C); added E13 outputs (class E) and E15 prompts; baseline-v2 | Done 2026-10-15: all parity checks pass, 0 todo |
 | **5** Interaction fixes | Focus preservation and targeted output updates; live updating while typing; scenario overrides shown | Keyboard-only walkthrough passes; Playwright focus test |
 | **6** Export and report | `export.js` with injection guard and v2 CSV; print report view; save/open progress file | Export tests pass; PDF print reviewed |
 | **7** Accessibility and CSP | Labels, contrast, aria; remove inline styles; CSP meta | Zero CSP violations; axe-core run in Playwright with no serious issues |

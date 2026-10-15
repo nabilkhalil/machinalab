@@ -52,5 +52,7 @@ history is in `docs/CHANGELOG.md`.
 - `Pinput = Pc / efficiency`
 - `tcut = 60 L / (f N)` in seconds
 - `Cpart = tcycle/3600 × machine_rate + tcut/60/tool_life × insert_cost/edges`
+- `Ctool = tcut/60/tool_life × insert_cost/edges`; `tbatch = tcycle × batch / 3600` in hours
+- Decision scores (0–100): Ra min–max; productivity `100 × MRR/MRRmax`; power `100 × Pmin/P`; cost `100 × Cmin/C`
 
 All outputs are approximate analytical predictions. The model does not represent experimentally validated surface roughness, tool wear, or tool life as a function of cutting speed.

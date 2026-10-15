@@ -1,12 +1,13 @@
-// Regression lock: the app must reproduce tests/fixtures/baseline-v1.json for every
+// Regression lock: the app must reproduce tests/fixtures/baseline-v2.json for every
 // scenario. Only an approved model change (see .claude/skills/model-change) may
-// replace this with a new versioned baseline; never edit baseline-v1.json in place.
+// replace this with a new versioned baseline; never edit a baseline file in place.
+// (v1 = original app; v2 = Stage 2 workbook-aligned scoring, see docs/MODEL_CHANGELOG.md.)
 'use strict';
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('path');
 const { loadLegacy } = require('../../tools/legacy-loader');
-const baseline = require('../fixtures/baseline-v1.json');
+const baseline = require('../fixtures/baseline-v2.json');
 
 const APP = path.join(__dirname, '..', '..', 'site', 'app.js');
 const TOLERANCE = 1e-12;

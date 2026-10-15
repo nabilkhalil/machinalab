@@ -1,7 +1,7 @@
 // Excel parity: the web model must reproduce the reference workbook's cached values.
 // Golden values come from tools/extract_excel.py (see .claude/skills/excel-parity).
-// Known, reported discrepancies are marked `todo` so they stay visible in every run
-// without failing CI; remove the `todo` once the lecturer confirms the fix.
+// Any future discrepancy must be reported (docs/excel-parity-report.md) and may be
+// marked `todo` only until the agreed fix lands.
 'use strict';
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
@@ -13,8 +13,6 @@ const ROOT = path.join(__dirname, '..', '..');
 const DIRECT = 1e-9;  // formulas without PI(): both sides are IEEE-754 doubles
 const WITH_PI = 1e-6; // formulas that depend on PI() via spindle speed
 const PI_DEPENDENT = new Set(['rpm', 'cutTime', 'cycle', 'cost', 'batchCost']);
-const SCORING_TODO = 'AUDIT E12: Excel uses ratio scoring, JS uses min-max. Awaiting lecturer confirmation.';
-const MISSING_TODO = 'AUDIT E13: COST ANALYSIS column not implemented in the web app yet.';
 
 function freshModel() {
   const legacy = loadLegacy(path.join(ROOT, 'site', 'app.js'));
@@ -90,10 +88,10 @@ describe('COST ANALYSIS sheet', () => {
   test('batch cost', () => assertColumn('batchCost', golden.costAnalysis.map((g, n) => ({
     id: g.id.value, excel: g.batchCost.value, js: trials[n].batchCost, formula: g.batchCost.formula,
   })), WITH_PI));
-  for (const key of ['batchHours', 'toolCost', 'costLife15', 'costLife60']) {
-    test(key, { todo: MISSING_TODO }, () => {
-      assert.ok(key in trials[0], `web app has no "${key}" output`);
-    });
+  for (const key of ['batchHours', 'toolCost', 'costLife15', 'costLife30', 'costLife60']) {
+    test(key, () => assertColumn(key, golden.costAnalysis.map((g, n) => ({
+      id: g.id.value, excel: g[key].value, js: trials[n][key], formula: g[key].formula,
+    })), WITH_PI));
   }
 });
 
@@ -104,11 +102,11 @@ describe('DECISION MATRIX sheet', () => {
   }));
 
   test('Ra score', () => assertColumn('raScore', rows('raScore', r => r.values[0]), DIRECT));
-  test('productivity score', { todo: SCORING_TODO }, () => assertColumn('mrrScore', rows('mrrScore', r => r.values[1]), DIRECT));
-  test('power score', { todo: SCORING_TODO }, () => assertColumn('powerScore', rows('powerScore', r => r.values[2]), DIRECT));
-  test('cost score', { todo: SCORING_TODO }, () => assertColumn('costScore', rows('costScore', r => r.values[3]), WITH_PI));
-  test('weighted total', { todo: SCORING_TODO }, () => assertColumn('weighted', rows('weighted', r => r.score ?? 0), WITH_PI));
-  test('rank order of feasible trials', { todo: SCORING_TODO }, () => {
+  test('productivity score', () => assertColumn('mrrScore', rows('mrrScore', r => r.values[1]), DIRECT));
+  test('power score', () => assertColumn('powerScore', rows('powerScore', r => r.values[2]), DIRECT));
+  test('cost score', () => assertColumn('costScore', rows('costScore', r => r.values[3]), WITH_PI));
+  test('weighted total', () => assertColumn('weighted', rows('weighted', r => r.score ?? 0), WITH_PI));
+  test('rank order of feasible trials', () => {
     const excelOrder = golden.decision.filter(g => g.rank.value !== '').sort((a, b) => a.rank.value - b.rank.value).map(g => g.id.value);
     const jsOrder = [...byId.values()].filter(r => r.feasible).map(r => r.id);
     assert.deepEqual(jsOrder, excelOrder);

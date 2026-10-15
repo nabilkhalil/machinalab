@@ -10,18 +10,17 @@ lecturers who set the PBL tasks and mark the exported results.
 
 ## Current state (as of the 2026-10-15 audit — see `docs/AUDIT.md`)
 
-- Stage 1 done (see `docs/CHANGELOG.md`). Git repo on `main`.
+- Stages 1–2 done (see `docs/CHANGELOG.md`). Git repo on `main`.
 - App: `site/index.html`, `site/app.js` (single minified-style script), `site/styles.css`.
   Code unchanged since the audit. Only `site/` is deployed.
 - Workbook: `reference/MMT15603_Virtual_Machinability_Simulator.xlsx`. Parity run on 2026-10-15
-  (`docs/excel-parity-report.md`): **all machining quantities match exactly**. The **decision matrix does
-  not** (E12): Excel scores productivity, power and cost by ratio to best, and JS uses min–max. Awaiting
-  lecturer confirmation before changing `scores()`.
-- Tests: `npm test` runs the baseline lock and Excel parity (62 pass, 9 `todo` = known
-  discrepancies E12/E13). `npm run test:browser` runs 13 Playwright tests. Two of them are `test.fail` for
+  (`docs/excel-parity-report.md`): machining quantities, cost analysis and decision matrix all match
+  the workbook (decision scoring aligned in Stage 2).
+- Tests: `npm test` runs the baseline lock (`baseline-v2.json`), Excel parity and scoring properties
+  (84 pass, 0 todo). `npm run test:browser` runs 17 Playwright tests. Two of them are `test.fail` for
   known bugs U1 and S2. Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
 - Python venv `.venv/` (openpyxl) is used by `npm run excel:extract`. It's git-ignored.
-- Next: Stage 2, workbook alignment (E12 scoring, E13 cost outputs, E15 student prompts).
+- Next: Stage 3, validation and storage (E2, S3–S5) plus the U1 focus fix.
 
 ## Non-negotiable rules
 
@@ -97,9 +96,10 @@ Node ≥ 18 is required for `node:test`. Python is needed only for `tools/extrac
 
 Scenarios: A sets Ra_limit = 0.8 µm; B sets batch = 3500; C sets T = 0.6·T.
 Decision scores are normalised across all nine trials, including infeasible ones. This is intended,
-per DECISION MATRIX!J12. Only feasible trials receive a weighted score. Workbook method (the reference):
+per DECISION MATRIX!J12. Only feasible trials receive a weighted score. Same method as the workbook:
 Ra uses min–max (lower is better); productivity = 100·MRR/max; power = 100·min/P; cost = 100·min/C.
-The current JS uses min–max for all four, which is known discrepancy E12.
+Cost-analysis outputs: tool cost/part = tcut/60/T·insert/edges; batch hours = tcycle·batch/3600;
+cost/part at fixed T = 15/30/60 min (not affected by scenario C).
 
 Units shown to students must always match this table. MRR is shown as cm³/min in the UI
 and stored as mm³/min in data. Label which one you use every time.
