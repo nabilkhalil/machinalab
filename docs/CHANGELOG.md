@@ -1,5 +1,58 @@
 # Changelog
 
+## Stage 7 — Accessibility, Content-Security-Policy and CI hardening (2026-10-15)
+
+**Baseline measured first:** axe-core (WCAG 2.0/2.1/2.2 A and AA rules) flagged only one rule as failing: **colour contrast
+(serious), on every page**, across 7 colour pairs. The worst was the page footer at 2.66:1, against the 4.5:1 required.
+
+**Changed**
+- **Contrast:** 8 grey and teal text colours darkened within the same palette, for example `#71899a` to `#526a7a` and `#188a96` to
+  `#0e6f79`. Every one is at least 5.08:1 on every background it is used on, which was checked by calculation before the change.
+- **Keyboard and screen readers:**
+  - a "Skip to main content" link as the first Tab stop;
+  - choosing a page sets `aria-current="page"` and moves focus to the page heading;
+  - the nav landmark is named "Pages";
+  - decorative glyphs (◫ ⚙ ▦ …, the brand "M", the hero gear) are hidden from screen readers;
+  - a visible focus ring (`:focus-visible`) on every control;
+  - the wide tables are focusable, labelled regions, so they can be scrolled with the keyboard on a phone.
+- **Charts** carry a one-sentence description, for example "Ideal surface roughness, bar chart of the nine trials. Lowest 0.391 µm
+  (trial 1, 4, 7), highest 1.563 µm (trial 3, 6, 9)."
+- **Content-Security-Policy** (`<meta>` in index.html): `default-src 'self'; script-src 'self'; style-src 'self';
+  img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'`. The last inline `style=` attribute was
+  replaced by a class.
+- **CI (S7):** the workflow now runs a `test` job (`npm ci`, unit tests, Playwright with Chromium) on every push and pull request.
+  **Deployment needs that job to pass** and runs only for `main`.
+  - All 7 actions are pinned to full commit SHAs, resolved from GitHub's tags. The `upload-artifact` SHA was re-verified after it was
+    first written from memory.
+  - Permissions are least-privilege per job.
+  - Pages concurrency no longer cancels an in-progress deployment, which is GitHub's recommendation.
+  - Playwright traces are kept on failure.
+- Dev dependency: `@axe-core/playwright` (test-only, never deployed).
+
+**Unchanged (verified)**
+- All calculated values: the bit-exact model test, the baseline and Excel parity pass. All 34 earlier browser tests pass.
+
+**Verification**
+- Unit: 148/148. Browser: 50/50 (34 smoke + 16 new in `tests/browser/a11y.spec.js`):
+  - axe has **0 violations** on all 7 pages, in the error/warning/override state and at 375 px;
+  - **no CSP violations** while exercising every page, live typing, the print report, CSV and the progress file, over both http **and
+    `file://`** (double-click still works);
+  - **the CSP is enforced**: an injected inline script, an `onerror` handler and an inline style are all blocked. A negative check with the CSP
+    removed showed all three succeed, so the test is meaningful;
+  - focus moves to the heading with `aria-current` set;
+  - the skip link works;
+  - glyph-free accessible names and chart descriptions;
+  - keyboard scrolling of tables on a phone.
+- The workflow YAML was parsed and checked (triggers, `needs`, `if`, permissions, upload path `site`). The CI steps were reproduced locally
+  from a clean `npm ci`: 148 unit and 46 browser tests passed.
+- Visual check of the Cost page with keyboard focus at 1280 px.
+
+**Known limits**
+- Automated tools find only part of accessibility issues. A short manual pass with a screen reader (NVDA on Windows) is still
+  recommended before a formal accessibility statement.
+- The workflow's first real run will happen on the first push. It can't be run locally.
+
+
 ## Stage 6 — Live interaction, change-request overrides, dynamic overview (2026-10-15)
 
 **Changed** (behaviour only; no model change)
