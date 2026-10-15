@@ -30,7 +30,8 @@ lecturer opens student exports in Excel; (4) publishing files that were never me
    numeric values, not strings). Test with notes containing `=HYPERLINK("http://x","y")`.
 6. **CSP meta tag** present and as specified in CLAUDE.md. Confirm there are no inline
    `<script>` blocks, `on*=` attributes or `style=` attributes (`grep -nE 'on[a-z]+=|style="' site/`).
-   In the browser console the CSP must report no violations.
+   In the browser console the CSP must report no violations. Automated: `tests/browser/a11y.spec.js`
+   ("CSP: …" tests over http and file://, plus an enforcement test).
 7. **No external requests** at runtime: no CDNs, fonts or analytics. `grep -nE 'https?://' site/`.
    Any hit must be a plain link the student clicks, never a resource load.
 8. **Deploy scope.** `.github/workflows/deploy.yml` uploads `site/` only. After deploying,

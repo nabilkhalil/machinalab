@@ -10,7 +10,7 @@ lecturers who set the PBL tasks and mark the exported results.
 
 ## Current state (as of the 2026-10-15 audit — see `docs/AUDIT.md`)
 
-- Stages 1–6 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.1.0 (`APP_VERSION` in app.js).
+- Stages 1–7 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.1.0 (`APP_VERSION` in app.js).
 - App: `site/index.html`, `site/js/params.js` (input schema), `site/js/model.js` (machining model, pure), `site/js/validate.js` (validate/sanitise),
   `site/js/export.js` (CSV v2, progress files),
   `site/app.js` (state, rendering, events; still compact style), `site/styles.css`. Only `site/` is deployed.
@@ -18,11 +18,16 @@ lecturers who set the PBL tasks and mark the exported results.
   (`docs/excel-parity-report.md`): machining quantities, cost analysis and decision matrix all match
   the workbook (decision scoring aligned in Stage 2).
 - Tests: `npm test` runs the baseline lock (`baseline-v2.json`), Excel parity and scoring properties
-  plus model, validation and export (148 pass, 0 todo). `npm run test:browser` runs 28 Playwright tests, with no
-  known-bug markers left. Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
+  plus model, validation and export (148 pass, 0 todo). `npm run test:browser` runs 50 Playwright tests
+  (`smoke.spec.js`, plus `a11y.spec.js` for axe WCAG A/AA, keyboard and CSP), with no known-bug markers left.
+  Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
+- CI (`.github/workflows/deploy.yml`) runs both suites on every push and PR. Deployment of `site/` waits for them and
+  runs only on `main`. Actions are pinned to commit SHAs. Update one at a time, and verify the SHA with `git ls-remote`.
+- New UI must keep axe at 0 violations: text contrast ≥ 4.5:1, labelled controls, and no inline `<script>`, `style=`
+  or `on*=` attributes (the CSP blocks them).
 - Python venv `.venv/` (openpyxl) is used by `npm run excel:extract`. It's git-ignored.
 - Storage key `machinalab:mmt15603:v2` = `{schemaVersion: 2, state}`. The old `machinalab-v1` key is still read.
-- Next: Stage 7, accessibility (contrast, nav glyphs, aria-current) and CSP (remove inline styles).
+- Next: Stage 8, visualisation (axis titles, limit lines, response plots, feasibility map, data tables).
 
 ## Non-negotiable rules
 
