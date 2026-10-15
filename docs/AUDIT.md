@@ -54,14 +54,14 @@ risk; **L** = polish.
 | # | Sev | Finding | Evidence |
 |---|---|---|---|
 | E1 | ~~H~~ | ~~The Excel workbook isn't in the repo.~~ **Resolved 2026-10-15:** it's now in `reference/`. The model matches it exactly (see `excel-parity-report.md`). | reference/ |
-| E2 | H | Invalid inputs still produce results. If initial ≤ final diameter, ap goes negative, force and power go negative, and the app shows "FEASIBLE". The validation message is shown but calculations and feasibility still render. | app.js:6, app.js:25 |
+| E2 | ~~H~~ | **Resolved in Stage 3.** ~~Invalid inputs still produce results.~~ If initial ≤ final diameter, ap goes negative, force and power go negative, and the app shows "FEASIBLE". The validation message is shown but calculations and feasibility still render. | app.js:6, app.js:25 |
 | E3 | M | **The power constraint never binds.** At defaults the peak input power is 0.71 kW against a 7.5 kW limit, about 10×. Students never see a power trade-off. | baseline-v1.json |
 | E4 | M | **Change request B is a no-op for the decision.** Batch size scales batch cost only, and the feasible set and ranking are identical to BASE. | baseline: B ranking = BASE ranking |
 | E5 | M | **Change request C is a no-op for the decision.** Tool life doesn't depend on Vc (no Taylor relation), so tool cost scales with tcut, the same ordering as machine cost. The ranking is unchanged. | baseline: C ranking = BASE ranking |
 | E6 | M | Decision scores are min–max normalised over all nine trials **including infeasible ones**, so in scenario A the scores of feasible trials depend on trials that were rejected. **Answered:** the workbook does the same and states it (DECISION MATRIX!J12), so it's intended. | app.js:19 |
 | E7 | M | Scenario A overrides the Ra limit silently. The simulator still shows the student's "Ra limit" field (1.6) as editable while 0.8 is enforced. | app.js:5, app.js:14 |
 | E8 | L | The overview's "Industrial challenge" text hard-codes Ø50→Ø49, 100 mm, 2 000 parts, 1.6 µm and 7.5 kW, which go stale when inputs change. | app.js:13 |
-| E9 | L | The weights total check uses exact `!== 100`, which is fragile for non-integer weights. | app.js:8 |
+| E9 | ~~L~~ | **Resolved in Stage 3 (1e-6 tolerance).** The weights total check used exact `!== 100`, which is fragile for non-integer weights. | app.js:8 |
 | E10 | L | Trial ids use `i*3+j+1`, which assumes exactly three feed levels. | app.js:7 |
 | E12 | ~~H~~ | **Resolved in Stage 2 (scores now follow the workbook).** ~~Decision scores differ from the workbook.~~ Excel uses ratio-to-best for productivity, power and cost; JS uses min–max. Same best trial (7), but ranks 4–9 differ (trial 1 is 4th in Excel, 8th in JS). | app.js:19; DECISION MATRIX!C5:E13 |
 | E13 | ~~M~~ | **Resolved in Stage 2.** ~~The workbook's COST ANALYSIS outputs (batch hours, tool cost/part, cost at T = 15/30/60 min) aren't in the web app.~~ | COST ANALYSIS!D:H |
@@ -75,9 +75,9 @@ risk; **L** = polish.
 |---|---|---|---|
 | S1 | ~~H~~ | **Resolved in Stage 1: deploy is now `site/` only.** ~~The deploy publishes the repo root~~ (`path: .`). Once CLAUDE.md, `.claude/`, docs, tests and a future answer key are committed, they become public on Pages. | deploy.yml:22 |
 | S2 | M | **CSV formula injection.** Student notes starting with `=`, `+`, `-` or `@` are exported raw, and they execute when a lecturer opens the file in Excel. | app.js:26 |
-| S3 | M | **Unescaped interpolation of stored state.** `field()` writes `state[key]` into `value="…"` unescaped, and state comes unsanitised from `localStorage`. All project pages under `<user>.github.io` share an origin, so another page by the same owner can plant markup. The risk is low but real, and it's cheap to fix. | app.js:3, app.js:9 |
-| S4 | M | Stored state isn't schema-checked. Wrong types or array lengths (e.g. `speeds:[1]`) silently break the page. | app.js:3 |
-| S5 | M | `localStorage.setItem` isn't wrapped in try/catch. It throws in some private modes and when the quota is full, which breaks every interaction. | app.js:4 |
+| S3 | ~~M~~ | **Resolved in Stage 3 (`esc()` everywhere, sanitised load).** ~~Unescaped interpolation of stored state.~~ `field()` writes `state[key]` into `value="…"` unescaped, and state comes unsanitised from `localStorage`. All project pages under `<user>.github.io` share an origin, so another page by the same owner can plant markup. The risk is low but real, and it's cheap to fix. | app.js:3, app.js:9 |
+| S4 | ~~M~~ | **Resolved in Stage 3 (`sanitise()`).** Stored state wasn't schema-checked. Wrong types or array lengths (e.g. `speeds:[1]`) silently break the page. | app.js:3 |
+| S5 | ~~M~~ | **Resolved in Stage 3.** `localStorage.setItem` wasn't wrapped in try/catch. It throws in some private modes and when the quota is full, which breaks every interaction. | app.js:4 |
 | S6 | L | No Content-Security-Policy. Inline `style=` attributes in the templates would need refactoring first. | app.js:14, app.js:22 |
 | S7 | L | Actions are pinned to major tags (`@v4`), not commit SHAs. | deploy.yml |
 
@@ -85,10 +85,10 @@ risk; **L** = polish.
 
 | # | Sev | Finding | Evidence |
 |---|---|---|---|
-| U1 | **H** | **Focus is lost when tabbing between fields.** The `change` event fires on blur, `render()` replaces the whole view, and the field just tabbed into is destroyed. Students filling in the form will hit this constantly. | app.js:25, app.js:28 |
+| U1 | ~~H~~ | **Resolved in Stage 3 (deferred render + focus restore).** ~~Focus is lost when tabbing between fields.~~ The `change` event fires on blur, `render()` replaces the whole view, and the field just tabbed into is destroyed. Students filling in the form will hit this constantly. | app.js:25, app.js:28 |
 | U2 | **H** | **"Print report" prints only the experiments table**, without the student's notes, decision matrix or charts. That isn't a report. | app.js:27 |
 | U3 | M | The live simulator only updates on `change` (blur or Enter), not while typing, which weakens cause-and-effect exploration. | app.js:28 |
-| U4 | M | Labels aren't linked to inputs for the speed and feed levels, the weights, the scenario select and the text fields (no `for`/`id`). | app.js:16, 20, 22 |
+| U4 | M | *Partly resolved in Stage 3: level, weight, scenario and workbook labels are now linked.* Labels weren't linked to inputs for the speed and feed levels, the weights, the scenario select and the text fields (no `for`/`id`). | app.js:16, 20, 22 |
 | U5 | M | Muted text `#71899a` on white is about 3.4:1, below the WCAG AA 4.5:1 for 11–12 px text. | styles.css |
 | U6 | M | Charts have no y-axis title, no limit lines and no data-table alternative. The axis floor `Math.max(…,1)` compresses small series. | app.js:17 |
 | U7 | M | The bar-by-trial-number charts hide the 3×3 factorial structure. A response plot (output vs f, one line per Vc) teaches the effects directly. | app.js:17–18 |

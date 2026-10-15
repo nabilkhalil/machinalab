@@ -1,5 +1,5 @@
 // Browser tests run against the deployable folder only (site/), served as static
-// files the same way GitHub Pages serves them.
+// files the same way GitHub Pages serves them (tools/serve.js).
 'use strict';
 const { defineConfig, devices } = require('@playwright/test');
 
@@ -15,10 +15,9 @@ module.exports = defineConfig({
   },
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: {
-    command: `python -m http.server ${PORT} --bind 127.0.0.1 -d site`,
+    command: `node tools/serve.js ${PORT} site`,
     url: `http://127.0.0.1:${PORT}/index.html`,
     reuseExistingServer: false,
-    stderr: 'ignore', // http.server logs every request to stderr
     timeout: 30000,
   },
 });

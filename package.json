@@ -7,7 +7,7 @@
     "excel:extract": ".venv/Scripts/python -I tools/extract_excel.py",
     "baseline": "node tools/characterise-legacy.js",
     "test:browser": "playwright test",
-    "serve": "python -m http.server 8000 -d site",
+    "serve": "node tools/serve.js 8000 site",
     "check": "npm test && npm run test:browser"
   },
   "engines": {

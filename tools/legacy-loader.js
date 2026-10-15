@@ -1,20 +1,25 @@
-// Load the legacy single-file app.js in a vm sandbox with a stubbed DOM and
-// localStorage, without modifying it, and expose its model functions.
+// Load site/app.js (and the js/ scripts it depends on, in index.html order) in a vm
+// sandbox with a stubbed DOM and localStorage, and expose its model functions.
 'use strict';
 const fs = require('fs');
 const vm = require('vm');
+const path = require('path');
 
-function loadLegacy(appPath) {
+function loadLegacy(appPath, storedState = null) {
+  const siteDir = path.dirname(appPath);
+  const deps = ['params.js', 'validate.js'].map(f => path.join(siteDir, 'js', f)).filter(fs.existsSync);
   const source = fs.readFileSync(appPath, 'utf8').replace(/render\(\);\s*$/, '');
   const stubElement = { hidden: false, textContent: '', innerHTML: '', classList: { toggle() {} } };
   const sandbox = {
-    localStorage: { getItem: () => null, setItem() {} },
+    localStorage: { getItem: () => storedState, setItem() {} },
     document: { querySelector: () => stubElement, querySelectorAll: () => [], addEventListener() {} },
     window: {},
     console, Math, Number, JSON, String,
   };
+  sandbox.window = sandbox; // classic browser scripts share one global object
   vm.createContext(sandbox);
-  vm.runInContext(source + ';this.__legacy={calc,trials,scores,live,state,defaults,validation};', sandbox);
+  for (const dep of deps) vm.runInContext(fs.readFileSync(dep, 'utf8'), sandbox, { filename: dep });
+  vm.runInContext(source + ';this.__legacy={calc,trials,scores,live,state,defaults,get check(){return check},MachinaLab};', sandbox);
   return sandbox.__legacy;
 }
 

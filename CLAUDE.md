@@ -10,17 +10,17 @@ lecturers who set the PBL tasks and mark the exported results.
 
 ## Current state (as of the 2026-10-15 audit — see `docs/AUDIT.md`)
 
-- Stages 1–2 done (see `docs/CHANGELOG.md`). Git repo on `main`.
-- App: `site/index.html`, `site/app.js` (single minified-style script), `site/styles.css`.
-  Code unchanged since the audit. Only `site/` is deployed.
+- Stages 1–3 done (see `docs/CHANGELOG.md`). Git repo on `main`.
+- App: `site/index.html`, `site/js/params.js` (input schema), `site/js/validate.js` (validate/sanitise),
+  `site/app.js` (model, rendering, events; still compact style), `site/styles.css`. Only `site/` is deployed.
 - Workbook: `reference/MMT15603_Virtual_Machinability_Simulator.xlsx`. Parity run on 2026-10-15
   (`docs/excel-parity-report.md`): machining quantities, cost analysis and decision matrix all match
   the workbook (decision scoring aligned in Stage 2).
 - Tests: `npm test` runs the baseline lock (`baseline-v2.json`), Excel parity and scoring properties
-  (84 pass, 0 todo). `npm run test:browser` runs 17 Playwright tests. Two of them are `test.fail` for
-  known bugs U1 and S2. Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
+  plus validation (117 pass, 0 todo). `npm run test:browser` runs 24 Playwright tests. One of them is
+  `test.fail` for the known bug S2. Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
 - Python venv `.venv/` (openpyxl) is used by `npm run excel:extract`. It's git-ignored.
-- Next: Stage 3, validation and storage (E2, S3–S5) plus the U1 focus fix.
+- Next: Stage 4, export and report (S2 CSV injection, print report U2, save/open progress file).
 
 ## Non-negotiable rules
 
@@ -65,7 +65,8 @@ docs/                    ← AUDIT, CHANGELOG, MODEL_CHANGELOG, decisions/
 ```
 
 Script load order in `index.html`: `params.js → model.js → validate.js → export.js →
-charts.js → app.js`.
+charts.js → app.js` (currently `js/params.js → js/validate.js → app.js`).
+Re-render after input changes with `renderSoon()`, never `render()` directly, so focus survives Tab.
 
 ## Commands (available once Stage 1 lands)
 

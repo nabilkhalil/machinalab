@@ -87,11 +87,95 @@ test('change request A leaves 3 feasible trials, best is trial 7', async ({ page
   await expect(page.locator('.pill', { hasText: 'feasible' })).toHaveText('3 feasible');
 });
 
-test('invalid diameters show a notice', async ({ page }) => {
+test('invalid diameters: notice, marked field, and no predictions shown', async ({ page }) => {
   await openPage(page, 'simulator');
   await setNumber(page, '#final', 51);
-  await expect(page.locator('#notice')).toBeVisible();
-  await expect(page.locator('#notice')).toContainText('Initial diameter must exceed final diameter');
+  await expect(page.locator('#notice')).toContainText('Final diameter must be smaller than initial diameter');
+  await expect(page.locator('#final')).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('#msg-final')).toContainText('bar gets thinner');
+  await expect(page.locator('.status')).toHaveCount(0); // never show FEASIBLE for invalid input
+  await expect(page.locator('.blocked')).toContainText('No predictions yet');
+  for (const name of ['experiments', 'analysis', 'cost']) {
+    await openPage(page, name);
+    await expect(page.locator('.blocked').first()).toBeVisible();
+    await expect(page.locator('#view')).not.toContainText('FEASIBLE');
+  }
+  await openPage(page, 'dashboard');
+  await expect(metric(page, 'Feasible conditions')).toContainText('—');
+});
+
+test('"Show me" in the notice opens the right page and focuses the field', async ({ page }) => {
+  await openPage(page, 'cost');
+  await setNumber(page, '#batch', 0);
+  await openPage(page, 'models');
+  await page.locator('#notice [data-fix="batch"]').click();
+  await expect(page.locator('#pageTitle')).toHaveText('Cost & Decision Analysis');
+  await expect(page.locator('#batch')).toBeFocused();
+});
+
+test('emptied field asks for a number and keeps the box empty', async ({ page }) => {
+  await openPage(page, 'simulator');
+  await setNumber(page, '#liveFeed', '');
+  await expect(page.locator('#notice')).toContainText('Enter a number for Feed f (mm/rev).');
+  await expect(page.locator('#liveFeed')).toHaveValue('');
+});
+
+test('weights not totalling 100 block only the ranking', async ({ page }) => {
+  await openPage(page, 'cost');
+  await setNumber(page, '#weights-0', 20);
+  await expect(page.locator('#notice')).toContainText('add up to 90 %');
+  await expect(page.locator('#costAnalysis')).toBeVisible();
+  await expect(page.locator('.blocked')).toContainText('No ranking yet');
+  await expect(metric(page, 'Best feasible trial')).toContainText('—');
+  await openPage(page, 'experiments');
+  await expect(page.locator('tbody tr')).toHaveCount(9);
+});
+
+test('feed larger than nose radius shows a warning, not an error', async ({ page }) => {
+  await openPage(page, 'simulator');
+  await setNumber(page, '#liveFeed', 0.9);
+  await expect(page.locator('#notice')).toContainText('not smaller than the nose radius');
+  await expect(page.locator('#notice')).toHaveClass(/warn/);
+  await expect(page.locator('.status')).toHaveText('NOT FEASIBLE'); // results still shown
+});
+
+test('tampered storage cannot inject markup', async ({ page }) => {
+  let dialog = false;
+  page.on('dialog', d => { dialog = true; d.dismiss(); });
+  await page.evaluate(() => localStorage.setItem('machinalab-v1', JSON.stringify({
+    liveSpeed: '"><img src=x onerror=alert(1)>', speeds: ['<b>1</b>', 2, 3], student: '<img src=x onerror=alert(2)>',
+  })));
+  await page.reload();
+  for (const name of ['simulator', 'experiments', 'pbl']) await openPage(page, name);
+  await expect(page.locator('#pbl-student')).toHaveValue('<img src=x onerror=alert(2)>'); // shown as text
+  await openPage(page, 'simulator');
+  await expect(page.locator('#liveSpeed')).toHaveValue('150');
+  expect(dialog).toBe(false);
+  expect(await page.locator('#view img').count()).toBe(0);
+});
+
+test('app keeps working and warns when the browser blocks saving', async ({ page }) => {
+  await page.addInitScript(() => { Storage.prototype.setItem = () => { throw new Error('QuotaExceededError'); }; });
+  const errors = watchErrors(page);
+  await page.reload();
+  await openPage(page, 'simulator');
+  await setNumber(page, '#liveSpeed', 200);
+  await expect(metric(page, 'Spindle speed')).toContainText('1,286');
+  await expect(page.locator('#notice')).toContainText('could not be saved in this browser');
+  expect(errors).toEqual([]);
+});
+
+test('CSV from invalid inputs contains notes but no predictions', async ({ page }) => {
+  await openPage(page, 'simulator');
+  await setNumber(page, '#eff', 1.5);
+  await openPage(page, 'pbl');
+  await page.fill('[data-text="group"]', 'G2');
+  const [download] = await Promise.all([page.waitForEvent('download'), page.click('#exportBtn')]);
+  const csv = fs.readFileSync(await download.path(), 'utf8');
+  expect(csv).toContain('"Results not exported"');
+  expect(csv).toContain('Drive efficiency must be between');
+  expect(csv).not.toContain('"Trial","Vc_m_min"');
+  expect(csv).toContain('"Group / members","G2"');
 });
 
 test('student notes persist after reload', async ({ page }) => {
@@ -184,15 +268,33 @@ test('opens directly from file:// (double-click)', async ({ page }) => {
 });
 
 // ---- Known defects from docs/AUDIT.md. `test.fail` asserts the bug still exists.
+// (U1 was fixed in Stage 3 and is now an ordinary regression test.)
 // When a later stage fixes it, Playwright reports "expected to fail but passed",
 // prompting removal of the marker so the test becomes a normal regression test.
 
-test('U1: keyboard focus survives tabbing between inputs', async ({ page }) => {
-  test.fail(true, 'AUDIT U1: full re-render on change destroys the focused field (Stage 3).');
+test('U1 (fixed in Stage 3): keyboard focus survives tabbing between inputs', async ({ page }) => {
   await openPage(page, 'simulator');
+  await page.locator('#liveSpeed').focus();
   await page.fill('#liveSpeed', '180');
   await page.keyboard.press('Tab');
   await expect(page.locator('#liveFeed')).toBeFocused({ timeout: 1000 });
+  await expect(metric(page, 'Spindle speed')).toContainText('1,157'); // results updated too
+  await page.keyboard.press('End');
+  await page.keyboard.type('2');           // keep typing in the field we tabbed into
+  await page.keyboard.press('Shift+Tab');
+  await expect(page.locator('#liveSpeed')).toBeFocused();
+  await expect(page.locator('#liveFeed')).toHaveValue('0.152');
+  // Same on the experiments and cost pages.
+  await openPage(page, 'experiments');
+  await page.locator('#speeds-0').focus();
+  await page.fill('#speeds-0', '110');
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#speeds-1')).toBeFocused();
+  await openPage(page, 'cost');
+  await page.locator('#weights-0').focus();
+  await page.fill('#weights-0', '35');
+  await page.keyboard.press('Tab');
+  await expect(page.locator('#weights-1')).toBeFocused();
 });
 
 test('S2: CSV neutralises spreadsheet formulas in student text', async ({ page }) => {

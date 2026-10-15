@@ -14,7 +14,7 @@ A browser-based educational CNC turning simulation based on `MMT15603_Virtual_Ma
 
 ## Run locally
 Open `site/index.html` in a browser. There's no installation or build step. Alternatively, run
-`python -m http.server 8000 -d site` and open http://localhost:8000.
+`npm run serve` (or `python -m http.server 8000 -d site`) and open http://localhost:8000.
 
 ## Deploy on GitHub Pages
 1. Create a GitHub repository named `machinalab` and push this repository to its `main` branch.
@@ -30,13 +30,13 @@ The app needs no server, student accounts or API keys. Notes persist only in the
 device, so students should export results for submission. GitHub Pages does not collect or grade student submissions.
 
 ## For maintainers
-Requires Node.js 20+ and Python 3.
+Requires Node.js 20+. Python 3 is only needed to re-extract values from the workbook.
 
 | Command | Purpose |
 |---|---|
 | `npm install` then `npx playwright install chromium` | One-time setup for browser tests |
 | `npm test` | Unit tests: baseline regression lock + Excel parity |
-| `npm run test:browser` | Playwright smoke tests (serves `site/` on port 8765) |
+| `npm run test:browser` | Playwright smoke tests (serves `site/` on port 8765 via `tools/serve.js`) |
 | `npm run check` | Both of the above |
 | `npm run excel:extract` | Re-read the workbook into `tests/fixtures/excel-golden.json` (needs `.venv` with openpyxl) |
 

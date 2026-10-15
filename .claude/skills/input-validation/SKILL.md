@@ -10,11 +10,12 @@ description: Define and enforce the parameter schema for every MachinaLab input 
 Every numeric input is declared once:
 
 ```js
-{ key: 'liveFeed', label: 'Feed per revolution', symbol: 'f', unit: 'mm/rev',
-  min: 0.02, max: 0.6, step: 0.01, default: 0.15, group: 'cutting',
-  help: 'Distance the tool advances along the bar in one spindle revolution.',
-  rangeReason: 'Below 0.02 the insert rubs instead of cutting; above 0.6 exceeds typical finishing inserts.' }
+{ key: 'liveFeed', label: 'Feed f', unit: 'mm/rev', min: 0.01, max: 2, def: 0.15,
+  reason: 'Turning feeds lie between about 0.01 and 2 mm/rev.' }
 ```
+
+Fields: `key`, `label`, `unit`, `min`, `max`, `def`, `reason`, and optionally `integer: true`.
+Experiment levels, weights, scenarios and text keys have their own sections in the same file.
 
 The form, `validate()`, the CSV header and the Models page all read from this schema.
 Never hard-code a range in a template.
@@ -36,6 +37,8 @@ blocks a legitimate experiment.
 | Speeds/feeds levels distinct and ascending | warning only |
 
 `validate(state)` returns `{ errors: [{key, message}], warnings: [...] }`. It never throws.
+Array members use keys like `speeds.0` (DOM id `speeds-0`). The weight-total error uses the key `weights`.
+Use `modelErrors()` and `weightErrors()` to decide what to hide. Invalid weights block only the ranking.
 
 ## Behaviour on invalid input
 

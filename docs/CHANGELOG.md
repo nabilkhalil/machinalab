@@ -1,5 +1,77 @@
 # Changelog
 
+## Stage 3 — Input validation, safe storage and keyboard focus (2026-10-15)
+
+**Changed**
+- New `site/js/params.js`: a schema for every input (label, unit, min/max, default, reason for the range).
+  It's loaded before `app.js` as a classic script, so the app still works from `file://`.
+- New `site/js/validate.js`: `validate()` returns student-readable errors and warnings and never throws.
+  `sanitise()` rebuilds the state from untrusted saved data field by field (type, range, array
+  length, scenario list, text type and 5 000-character limit). Both are unit-testable under Node.
+- **E2: invalid inputs never produce results.** Predictions, the trial table, charts, cost analysis,
+  ranking, the feasible count and CSV results are replaced by a "No results yet" panel. An invalid weight
+  total blocks only the ranking. The CSV still exports the student's notes plus the list of input problems.
+- **Errors are shown at the field:** red border, `aria-invalid`, and a message linked by `aria-describedby`.
+  The notice banner lists every problem with a **Show me** button that opens the page and focuses the field.
+  Warnings, such as feed ≥ nose radius (where the ideal-Ra formula is unreliable) or unordered levels, are shown in amber
+  and don't block results.
+- An emptied number box stays empty and reports "Enter a number for …". Previously it silently became 0.
+- **S3 and S4:** saved data passes through `sanitise()` on load. Every value written into the page is escaped
+  (`esc()`, which replaces `safe()`), including numbers from storage and experiment levels.
+- **S5:** saving is wrapped in try/catch. If the browser blocks storage, the app keeps working and tells the
+  student to export a CSV.
+- **U1: keyboard focus survives re-rendering.** The page re-renders after the browser has moved focus, then
+  restores focus and the caret. Labels are now linked to the speed/feed level, weight and scenario inputs (part of U4).
+- **E9:** the weight total is checked with a 1e-6 tolerance instead of exact equality.
+- The notice is now a polite live region (`role="status"`).
+
+**Input ranges introduced** (generous teaching limits, to be confirmed by the lecturer; see `params.js`)
+
+| Input | Allowed | Input | Allowed |
+|---|---|---|---|
+| Initial / final diameter | 2–500 / 1–500 mm | Machine rate | 0–2 000 RM/h |
+| Machining length | 1–2 000 mm | Non-cutting time | 0–3 600 s |
+| Nose radius | 0.1–3.2 mm | Insert cost | 0–2 000 RM |
+| kc | 300–6 000 N/mm² | Usable edges | 1–12 (whole) |
+| Drive efficiency | 0.1–1 | Tool life | 1–480 min/edge |
+| Max input power | 0.1–200 kW | Batch | 1–1 000 000 (whole) |
+| Ra limit | 0.025–50 µm | Vc (live and levels) | 10–1 000 m/min |
+| Weights | 0–100 % each, total 100 | f (live and levels) | 0.01–2 mm/rev |
+
+Previously any positive value was accepted. The defaults and the full workbook case are well inside these ranges.
+
+**Unchanged (verified)**
+- Every calculated value: `baseline-v2.json` passes unchanged in all four scenarios, and Excel parity passes.
+
+**Verification**
+- Unit: 117/117 (84 earlier + 33 new validation tests). The new tests cover min, max and just outside for every parameter;
+  NaN, null, '', string and Infinity values; whole-number rules; cross-field diameters; weight totals; warnings; corrupted and
+  tampered storage blobs; text truncation; and start-up with unreadable storage.
+- Browser: 24/24, and 120/120 with `--repeat-each=5` (no flakiness from the deferred render). New tests:
+  - no FEASIBLE shown for invalid inputs, on any page;
+  - "Show me" navigation and focus;
+  - empty field;
+  - weights blocking only the ranking;
+  - feed ≥ nose radius warning;
+  - an XSS payload in storage produces no dialog and no injected element;
+  - blocked storage;
+  - CSV export with invalid inputs.
+
+  **U1 is now a normal passing test**: focus is kept when tabbing on the simulator, experiments and cost pages, and typing continues in the new field. S2 is
+  still confirmed as a known defect (Stage 4).
+- Security: every `state` interpolation in templates is escaped or numeric-formatted (grep reviewed).
+- Visual check of the error state at 1280 px.
+- **Test infrastructure:** an intermittent failure appeared during a full run (`ERR_CONNECTION_REFUSED`,
+  plus 44 s page-load stalls). The cause was Python `http.server`'s 5-connection listen backlog under parallel test
+  browsers, not the app. It was replaced by the dependency-free `tools/serve.js`, which also blocks path traversal
+  (checked: `../` gives 404, `%2e%2e%2f` gives 403). Afterwards, two runs of 10× repeats gave 480/480 passes.
+
+**Known issues / deferred**
+- S2 (CSV formula injection) and U2 (print report) are next, in Stage 4.
+- The storage key is still `machinalab-v1` without a `schemaVersion`. This is harmless for now because `sanitise()` copes with any shape,
+  and a versioned key is planned with the save/open progress file in Stage 4.
+- Contrast, nav glyphs and the remaining inline styles are planned for Stage 7.
+
 ## Stage 2 — Workbook alignment (2026-10-15)
 
 **Changed** (the engineering basis is in `docs/MODEL_CHANGELOG.md`)
