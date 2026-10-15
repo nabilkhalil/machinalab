@@ -10,19 +10,19 @@ lecturers who set the PBL tasks and mark the exported results.
 
 ## Current state (as of the 2026-10-15 audit — see `docs/AUDIT.md`)
 
-- Stages 1–4 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.1.0 (`APP_VERSION` in app.js).
-- App: `site/index.html`, `site/js/params.js` (input schema), `site/js/validate.js` (validate/sanitise),
+- Stages 1–5 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.1.0 (`APP_VERSION` in app.js).
+- App: `site/index.html`, `site/js/params.js` (input schema), `site/js/model.js` (machining model, pure), `site/js/validate.js` (validate/sanitise),
   `site/js/export.js` (CSV v2, progress files),
-  `site/app.js` (model, rendering, events; still compact style), `site/styles.css`. Only `site/` is deployed.
+  `site/app.js` (state, rendering, events; still compact style), `site/styles.css`. Only `site/` is deployed.
 - Workbook: `reference/MMT15603_Virtual_Machinability_Simulator.xlsx`. Parity run on 2026-10-15
   (`docs/excel-parity-report.md`): machining quantities, cost analysis and decision matrix all match
   the workbook (decision scoring aligned in Stage 2).
 - Tests: `npm test` runs the baseline lock (`baseline-v2.json`), Excel parity and scoring properties
-  plus validation and export (137 pass, 0 todo). `npm run test:browser` runs 28 Playwright tests, with no
+  plus model, validation and export (148 pass, 0 todo). `npm run test:browser` runs 28 Playwright tests, with no
   known-bug markers left. Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
 - Python venv `.venv/` (openpyxl) is used by `npm run excel:extract`. It's git-ignored.
 - Storage key `machinalab:mmt15603:v2` = `{schemaVersion: 2, state}`. The old `machinalab-v1` key is still read.
-- Next: Stage 5 (originally the model extraction to `js/model.js`, Class R) or Stage 7 accessibility and CSP. See AUDIT §5.
+- Next: Stage 6, interaction (live update while typing, scenario overrides E7, dynamic overview E8).
 
 ## Non-negotiable rules
 
@@ -67,7 +67,7 @@ docs/                    ← AUDIT, CHANGELOG, MODEL_CHANGELOG, decisions/
 ```
 
 Script load order in `index.html`: `params.js → model.js → validate.js → export.js →
-charts.js → app.js` (currently `js/params.js → js/validate.js → js/export.js → app.js`).
+charts.js → app.js` (currently `js/params.js → js/model.js → js/validate.js → js/export.js → app.js`).
 Re-render after input changes with `renderSoon()`, never `render()` directly, so focus survives Tab.
 
 ## Commands (available once Stage 1 lands)

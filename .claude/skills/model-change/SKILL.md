@@ -1,6 +1,6 @@
 ---
 name: model-change
-description: Governed procedure for changing any machining equation, constant, unit, scenario rule, feasibility criterion or decision-scoring rule in MachinaLab. Use whenever an edit touches calc(), scores(), scenario functions (effRa/batch/life), defaults with engineering meaning, or js/model.js — including "small" fixes and pure refactors of that code.
+description: Governed procedure for changing any machining equation, constant, unit, scenario rule, feasibility criterion or decision-scoring rule in MachinaLab. Use whenever an edit touches site/js/model.js (calc, trials, scores, effective*), defaults with engineering meaning, or the wrappers in app.js — including "small" fixes and pure refactors of that code.
 ---
 
 # Model change protocol
@@ -12,7 +12,7 @@ corrupts every past and future student report. Follow every step; do not skip ah
 
 | Class | Example | Numeric output may change? |
 |---|---|---|
-| R — Refactor | Move calc() into js/model.js, rename variables | **No.** Must match baseline to ≤ 1e-12 relative |
+| R — Refactor | Rename variables, restructure model.js | **No.** Must be bit-exact (`tests/unit/model.test.js`) |
 | C — Correction | Formula disagrees with the workbook or a cited reference | Yes, to match the reference |
 | E — Extension | Add Taylor tool life, setup cost, tool-change time | Only when the new option is enabled; default output unchanged |
 | P — Policy | Change scenario values, default limits, scoring normalisation | Yes. Needs lecturer approval |

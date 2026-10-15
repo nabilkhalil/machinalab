@@ -1,5 +1,30 @@
 # Changelog
 
+## Stage 5 — Model extraction (Class R refactor) (2026-10-15)
+
+**Changed**
+- The machining model moved from `site/app.js` into **`site/js/model.js`**: pure functions of the state
+  (`calc`, `trials`, `live`, `scores`, `effective`), each annotated with its workbook cell. `app.js` keeps
+  thin wrappers with the same names (`calc`, `trials`, `live`, `scores`, `effRa`, `batch`, `life`), so no page code changed.
+  Load order: `params → model → validate → export → app`.
+- New `tests/unit/model.test.js` (11 tests) requires the model directly under Node.
+
+**Unchanged (verified)**
+- **Every output is bit-for-bit identical** to `baseline-v2.json` in all four scenarios (`Object.is` on every
+  trial, live and score value). The 1e-12 baseline test and Excel parity also pass.
+- No visible change: 28/28 browser tests.
+
+**Verification**
+- Unit: 148/148, including the new bit-exact test, a purity check (the input state isn't modified), effective values per change
+  request, and physical properties over a 27-point grid:
+  - Ra is independent of Vc, and doubling f quadruples Ra;
+  - doubling Vc doubles N, MRR and Pc, and halves tcut;
+  - force and power rise with depth and kc, and input power falls as η rises;
+  - trial 5 is in the expected order of magnitude.
+- Mutation check: rewriting `1000*f*f` as `f*f*1000`, which is algebraically identical, changes the last bit of Ra in 6 of 9 trials,
+  and the bit-exact test detects it. This is why `model.js` warns against reordering expressions.
+
+
 ## Stage 4 — Export, print report and progress files (2026-10-15)
 
 **Changed**

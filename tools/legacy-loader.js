@@ -7,7 +7,7 @@ const path = require('path');
 
 function loadLegacy(appPath, storedState = null) {
   const siteDir = path.dirname(appPath);
-  const deps = ['params.js', 'validate.js', 'export.js'].map(f => path.join(siteDir, 'js', f)).filter(fs.existsSync);
+  const deps = ['params.js', 'model.js', 'validate.js', 'export.js'].map(f => path.join(siteDir, 'js', f)).filter(fs.existsSync);
   const source = fs.readFileSync(appPath, 'utf8').replace(/render\(\);\s*$/, '');
   const stubElement = { hidden: false, textContent: '', innerHTML: '', classList: { toggle() {} } };
   const sandbox = {
