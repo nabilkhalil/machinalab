@@ -59,8 +59,8 @@ risk; **L** = polish.
 | E4 | M | **Change request B is a no-op for the decision.** Batch size scales batch cost only, and the feasible set and ranking are identical to BASE. | baseline: B ranking = BASE ranking |
 | E5 | M | **Change request C is a no-op for the decision.** Tool life doesn't depend on Vc (no Taylor relation), so tool cost scales with tcut, the same ordering as machine cost. The ranking is unchanged. | baseline: C ranking = BASE ranking |
 | E6 | M | Decision scores are min–max normalised over all nine trials **including infeasible ones**, so in scenario A the scores of feasible trials depend on trials that were rejected. **Answered:** the workbook does the same and states it (DECISION MATRIX!J12), so it's intended. | app.js:19 |
-| E7 | M | Scenario A overrides the Ra limit silently. The simulator still shows the student's "Ra limit" field (1.6) as editable while 0.8 is enforced. | app.js:5, app.js:14 |
-| E8 | L | The overview's "Industrial challenge" text hard-codes Ø50→Ø49, 100 mm, 2 000 parts, 1.6 µm and 7.5 kW, which go stale when inputs change. | app.js:13 |
+| E7 | ~~M~~ | **Resolved in Stage 6.** Scenario A overrode the Ra limit silently. The simulator still shows the student's "Ra limit" field (1.6) as editable while 0.8 is enforced. | app.js:5, app.js:14 |
+| E8 | ~~L~~ | **Resolved in Stage 6.** The overview's "Industrial challenge" text hard-coded Ø50→Ø49, 100 mm, 2 000 parts, 1.6 µm and 7.5 kW, which go stale when inputs change. | app.js:13 |
 | E9 | ~~L~~ | **Resolved in Stage 3 (1e-6 tolerance).** The weights total check used exact `!== 100`, which is fragile for non-integer weights. | app.js:8 |
 | E10 | L | Trial ids use `i*3+j+1`, which assumes exactly three feed levels. | app.js:7 |
 | E12 | ~~H~~ | **Resolved in Stage 2 (scores now follow the workbook).** ~~Decision scores differ from the workbook.~~ Excel uses ratio-to-best for productivity, power and cost; JS uses min–max. Same best trial (7), but ranks 4–9 differ (trial 1 is 4th in Excel, 8th in JS). | app.js:19; DECISION MATRIX!C5:E13 |
@@ -87,7 +87,7 @@ risk; **L** = polish.
 |---|---|---|---|
 | U1 | ~~H~~ | **Resolved in Stage 3 (deferred render + focus restore).** ~~Focus is lost when tabbing between fields.~~ The `change` event fires on blur, `render()` replaces the whole view, and the field just tabbed into is destroyed. Students filling in the form will hit this constantly. | app.js:25, app.js:28 |
 | U2 | ~~H~~ | **Resolved in Stage 4 (full A4 report).** ~~"Print report" prints only the experiments table~~, without the student's notes, decision matrix or charts. That isn't a report. | app.js:27 |
-| U3 | M | The live simulator only updates on `change` (blur or Enter), not while typing, which weakens cause-and-effect exploration. | app.js:28 |
+| U3 | ~~M~~ | **Resolved in Stage 6 (live region updates).** The live simulator only updated on `change` (blur or Enter), not while typing, which weakens cause-and-effect exploration. | app.js:28 |
 | U4 | M | *Partly resolved in Stage 3: level, weight, scenario and workbook labels are now linked.* Labels weren't linked to inputs for the speed and feed levels, the weights, the scenario select and the text fields (no `for`/`id`). | app.js:16, 20, 22 |
 | U5 | M | Muted text `#71899a` on white is about 3.4:1, below the WCAG AA 4.5:1 for 11–12 px text. | styles.css |
 | U6 | M | Charts have no y-axis title, no limit lines and no data-table alternative. The axis floor `Math.max(…,1)` compresses small series. | app.js:17 |

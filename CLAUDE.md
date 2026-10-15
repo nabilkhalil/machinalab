@@ -10,7 +10,7 @@ lecturers who set the PBL tasks and mark the exported results.
 
 ## Current state (as of the 2026-10-15 audit — see `docs/AUDIT.md`)
 
-- Stages 1–5 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.1.0 (`APP_VERSION` in app.js).
+- Stages 1–6 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.1.0 (`APP_VERSION` in app.js).
 - App: `site/index.html`, `site/js/params.js` (input schema), `site/js/model.js` (machining model, pure), `site/js/validate.js` (validate/sanitise),
   `site/js/export.js` (CSV v2, progress files),
   `site/app.js` (state, rendering, events; still compact style), `site/styles.css`. Only `site/` is deployed.
@@ -22,7 +22,7 @@ lecturers who set the PBL tasks and mark the exported results.
   known-bug markers left. Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
 - Python venv `.venv/` (openpyxl) is used by `npm run excel:extract`. It's git-ignored.
 - Storage key `machinalab:mmt15603:v2` = `{schemaVersion: 2, state}`. The old `machinalab-v1` key is still read.
-- Next: Stage 6, interaction (live update while typing, scenario overrides E7, dynamic overview E8).
+- Next: Stage 7, accessibility (contrast, nav glyphs, aria-current) and CSP (remove inline styles).
 
 ## Non-negotiable rules
 
@@ -68,7 +68,9 @@ docs/                    ← AUDIT, CHANGELOG, MODEL_CHANGELOG, decisions/
 
 Script load order in `index.html`: `params.js → model.js → validate.js → export.js →
 charts.js → app.js` (currently `js/params.js → js/model.js → js/validate.js → js/export.js → app.js`).
-Re-render after input changes with `renderSoon()`, never `render()` directly, so focus survives Tab.
+Re-render after committed input changes with `renderSoon()`, never `render()` directly, so focus survives Tab.
+While typing (`input` events) use `updateSoon()`, which only refreshes `data-region` elements. Any output that
+must change while typing needs a `data-region` wrapper that is always present (including the "blocked" state).
 
 ## Commands (available once Stage 1 lands)
 

@@ -352,6 +352,106 @@ test('opens directly from file:// (double-click)', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+// ---- Stage 6: live updating, change-request overrides, dynamic overview ----------------
+
+test('results update while typing, without disturbing the field being typed in', async ({ page }) => {
+  await openPage(page, 'simulator');
+  const box = page.locator('#liveSpeed');
+  await box.evaluate(el => { el.dataset.probe = 'original'; }); // tag this exact element
+  await box.click();
+  await box.press('Control+A');
+  // Pause longer than the 150 ms debounce between keys, so live updates run mid-typing.
+  await box.pressSequentially('210', { delay: 250 });
+  await expect(box).toBeFocused();
+  await expect(box).toHaveValue('210');                        // caret never jumped
+  await expect(metric(page, 'Spindle speed')).toContainText('1,350'); // updated before leaving the field
+  await expect(page.locator('#liveSpeed[data-probe="original"]')).toHaveCount(1); // same element, never re-created
+});
+
+test('typing an invalid value shows the problem live, and fixing it restores results', async ({ page }) => {
+  await openPage(page, 'simulator');
+  const box = page.locator('#final');
+  await box.click();
+  await box.press('Control+A');
+  await box.pressSequentially('52', { delay: 50 });
+  await expect(page.locator('#msg-final')).toContainText('bar gets thinner');
+  await expect(box).toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('[data-region="simResults"] .blocked')).toBeVisible();
+  await box.press('Control+A');
+  await box.pressSequentially('49', { delay: 50 });
+  await expect(page.locator('#msg-final')).toHaveCount(0);
+  await expect(box).not.toHaveAttribute('aria-invalid', 'true');
+  await expect(page.locator('.status')).toHaveText('FEASIBLE');
+  await expect(box).toBeFocused();
+});
+
+test('experiment table and weight total update while typing', async ({ page }) => {
+  await openPage(page, 'experiments');
+  await page.locator('#speeds-2').click();
+  await page.locator('#speeds-2').press('Control+A');
+  await page.locator('#speeds-2').pressSequentially('300', { delay: 30 });
+  await expect(page.locator('tbody tr').nth(8).locator('td').nth(1)).toHaveText('300');
+  await openPage(page, 'cost');
+  await page.locator('#weights-1').click();
+  await page.locator('#weights-1').press('Control+A');
+  await page.locator('#weights-1').pressSequentially('30', { delay: 30 });
+  await expect(page.locator('#weightsTotal')).toHaveText('Current total: 105%');
+  await expect(page.locator('#notice')).toContainText('add up to 105 %');
+  await expect(page.locator('[data-region="ranking"] .blocked')).toBeVisible();
+});
+
+test('E7: change requests show which inputs they override', async ({ page }) => {
+  await openPage(page, 'cost');
+  await page.selectOption('#scenario', 'A');
+  await openPage(page, 'simulator');
+  await expect(page.locator('#raLimit')).toBeDisabled();
+  await expect(page.locator('#raLimit')).toHaveValue('0.8');
+  await expect(page.locator('#note-raLimit')).toContainText('Set by change request A');
+  await expect(page.locator('#note-raLimit')).toContainText('Your value, 1.6 µm');
+
+  await openPage(page, 'cost');
+  await page.selectOption('#scenario', 'B');
+  await expect(page.locator('#batch')).toBeDisabled();
+  await expect(page.locator('#batch')).toHaveValue('3500');
+  await expect(page.locator('#note-batch')).toContainText('Set by change request B');
+
+  await page.selectOption('#scenario', 'C');
+  await expect(page.locator('#life')).toBeEnabled();
+  await expect(page.locator('#note-life')).toContainText('18.0 min/edge');
+  await page.locator('#life').click();
+  await page.locator('#life').press('Control+A');
+  await page.locator('#life').pressSequentially('40', { delay: 30 });
+  await expect(page.locator('#note-life')).toContainText('24.0 min/edge'); // live, 60 % of 40
+
+  await page.selectOption('#scenario', 'BASE');
+  await expect(page.locator('#batch')).toBeEnabled();
+  await expect(page.locator('#batch')).toHaveValue('2000');
+  await expect(page.locator('#note-batch')).toHaveCount(0);
+});
+
+test('E8: the overview challenge follows the inputs', async ({ page }) => {
+  await expect(page.locator('#challenge')).toHaveText('A manufacturer must finish-turn 2,000 steel shafts from Ø50 to Ø49 mm across a 100 mm cutting length. Surface roughness must satisfy Ra ≤ 1.6 µm and machine input power must remain within 7.5 kW.');
+  await openPage(page, 'simulator');
+  await setNumber(page, '#initial', 60);
+  await setNumber(page, '#final', 58.5);
+  await openPage(page, 'cost');
+  await page.selectOption('#scenario', 'A');
+  await openPage(page, 'dashboard');
+  await expect(page.locator('#challenge')).toContainText('from Ø60 to Ø58.5 mm');
+  await expect(page.locator('#challenge')).toContainText('Ra ≤ 0.8 µm');
+});
+
+test('resetting experiment levels asks first', async ({ page }) => {
+  await openPage(page, 'experiments');
+  await setNumber(page, '#speeds-0', 120);
+  page.once('dialog', d => d.dismiss());
+  await page.click('#resetLevels');
+  await expect(page.locator('#speeds-0')).toHaveValue('120');
+  page.once('dialog', d => d.accept());
+  await page.click('#resetLevels');
+  await expect(page.locator('#speeds-0')).toHaveValue('100');
+});
+
 // ---- Known defects from docs/AUDIT.md. `test.fail` asserts the bug still exists.
 // (U1 was fixed in Stage 3 and S2 in Stage 4; both are now ordinary regression tests.)
 // When a later stage fixes it, Playwright reports "expected to fail but passed",

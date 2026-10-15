@@ -1,5 +1,41 @@
 # Changelog
 
+## Stage 6 — Live interaction, change-request overrides, dynamic overview (2026-10-15)
+
+**Changed** (behaviour only; no model change)
+- **Results update while typing** (150 ms debounce) on the simulator, experiments and cost pages. The page is
+  rebuilt off-screen and only marked output regions are copied across: results, tables, totals, field messages and notes.
+  The `aria-invalid` and `aria-describedby` attributes are synced in place. **Input boxes are never replaced while
+  a student types.** Committing a value (Tab, blur or Enter) still does the full render with focus restore from Stage 3.
+- Results that change are highlighted briefly. This is disabled when the system's "reduce motion" setting is on.
+- **E7:** inputs a change request overrides are shown disabled with an explanation. For A, the Ra limit shows 0.8 with "Set by
+  change request A… Your value, 1.6 µm, applies in the other scenarios". For B, the batch shows 3,500. For C, the tool life
+  stays editable with a live note: "Change request C uses 60 % of this value: 18.0 min/edge".
+- **E8:** the overview's industrial challenge now uses the actual batch, diameters, length, Ra limit and power
+  limit. At the defaults it reads exactly as before.
+- "Reset levels" asks for confirmation (student-ui skill: destructive actions).
+
+**Unchanged (verified)**
+- All calculated values: the bit-exact model test, the baseline and Excel parity pass. All 28 earlier browser tests pass unchanged.
+
+**Verification**
+- Unit: 148/148. Browser: 34/34, and 170/170 over 5 repeats. New tests:
+  - live typing: a value typed key by key with 250 ms pauses stays intact, focus stays, results update before blur, and the
+    same input element survives, tagged and checked;
+  - an invalid value appears live and clears live;
+  - the experiment table and weight total update while typing;
+  - E7 for A, B and C, including the live tool-life note and the return to BASE;
+  - E8;
+  - reset confirmation, both declined and accepted.
+- **Why region updates:** a negative check temporarily swapped live updating for a full re-render while typing. Typing "210"
+  then produced **"12"**, because the caret jumps when a number box is re-created. The test caught it. The real
+  implementation was restored and the diff confirmed.
+
+**Known issues / deferred**
+- Sliders for Vc and f (suggested in the student-ui skill) are not added yet, and could come with Stage 8.
+- Accessibility pass and CSP are planned for Stage 7.
+
+
 ## Stage 5 — Model extraction (Class R refactor) (2026-10-15)
 
 **Changed**
