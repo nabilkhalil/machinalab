@@ -1,0 +1,11 @@
+{
+  "name": "machinalab",
+  "private": true,
+  "description": "MMT15603 Virtual Machinability Simulator",
+  "scripts": {
+    "test": "node --test \"tests/unit/*.test.js\"",
+    "excel:extract": ".venv/Scripts/python -I tools/extract_excel.py",
+    "baseline": "node tools/characterise-legacy.js"
+  },
+  "engines": { "node": ">=20" }
+}

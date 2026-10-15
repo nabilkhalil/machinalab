@@ -1,0 +1,27 @@
+{
+  "workbook": "reference/MMT15603_Virtual_Machinability_Simulator.xlsx",
+  "inputs": {
+    "sheet": "INPUTS",
+    "cells": {
+      "initial": "B4", "final": "B5", "length": "B6", "nose": "B7", "kc": "B8", "eff": "B9",
+      "maxPower": "B10", "raLimit": "B11", "rate": "B12", "noncut": "B13", "insert": "B14",
+      "edges": "B15", "life": "B16", "batch": "B17", "scenario": "E11"
+    },
+    "arrays": { "speeds": ["B18", "B19", "B20"], "feeds": ["B21", "B22", "B23"] }
+  },
+  "weights": { "sheet": "DECISION MATRIX", "cells": ["K5", "K6", "K7", "K8"], "unit": "fraction (JS uses percent)" },
+  "live": { "sheet": "SIMULATOR", "inputs": { "liveSpeed": "B4", "liveFeed": "B5" },
+    "outputs": { "ap": "B8", "rpm": "B9", "mrr": "B10", "ra": "B11", "force": "B12", "cutPower": "B13",
+      "inputPower": "B14", "cutTime": "B15", "cycle": "B16", "cost": "B17", "status": "B18" } },
+  "derived": { "sheet": "INPUTS", "cells": { "effRa": "E13", "effBatch": "E14", "effLife": "E15", "ap": "E16", "meanDiameter": "E17" } },
+  "trials": { "sheet": "9 TRIALS", "firstRow": 5, "lastRow": 13,
+    "columns": { "id": "A", "v": "B", "f": "C", "ap": "D", "rpm": "E", "mrr": "F", "ra": "G", "force": "H",
+      "cutPower": "I", "inputPower": "J", "cutTime": "K", "cycle": "L", "cost": "M", "status": "N" } },
+  "costAnalysis": { "sheet": "COST ANALYSIS", "firstRow": 5, "lastRow": 13,
+    "columns": { "id": "A", "cost": "B", "batchCost": "C", "batchHours": "D", "toolCost": "E",
+      "costLife15": "F", "costLife30": "G", "costLife60": "H" } },
+  "decision": { "sheet": "DECISION MATRIX", "firstRow": 5, "lastRow": 13,
+    "columns": { "id": "A", "raScore": "B", "mrrScore": "C", "powerScore": "D", "costScore": "E",
+      "weighted": "F", "status": "G", "rank": "H" },
+    "best": "K15" }
+}

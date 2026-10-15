@@ -1,0 +1,1612 @@
+{
+  "description": "Cached values and formulas read from the reference workbook. Values reflect the scenario selected when the workbook was last saved.",
+  "extractedAt": "2026-10-15T06:01:41.819770+00:00",
+  "workbook": "reference/MMT15603_Virtual_Machinability_Simulator.xlsx",
+  "workbookSha256": "c5edbe8f2d7e061e68cc272b5b8456749524ddc86e33db4575a9a3c4237753f7",
+  "inputs": {
+    "initial": {
+      "cell": "INPUTS!B4",
+      "value": 50
+    },
+    "final": {
+      "cell": "INPUTS!B5",
+      "value": 49
+    },
+    "length": {
+      "cell": "INPUTS!B6",
+      "value": 100
+    },
+    "nose": {
+      "cell": "INPUTS!B7",
+      "value": 0.8
+    },
+    "kc": {
+      "cell": "INPUTS!B8",
+      "value": 1800
+    },
+    "eff": {
+      "cell": "INPUTS!B9",
+      "value": 0.85
+    },
+    "maxPower": {
+      "cell": "INPUTS!B10",
+      "value": 7.5
+    },
+    "raLimit": {
+      "cell": "INPUTS!B11",
+      "value": 1.6
+    },
+    "rate": {
+      "cell": "INPUTS!B12",
+      "value": 60
+    },
+    "noncut": {
+      "cell": "INPUTS!B13",
+      "value": 30
+    },
+    "insert": {
+      "cell": "INPUTS!B14",
+      "value": 35
+    },
+    "edges": {
+      "cell": "INPUTS!B15",
+      "value": 4
+    },
+    "life": {
+      "cell": "INPUTS!B16",
+      "value": 30
+    },
+    "batch": {
+      "cell": "INPUTS!B17",
+      "value": 2000
+    },
+    "scenario": {
+      "cell": "INPUTS!E11",
+      "value": "BASE"
+    },
+    "speeds": [
+      {
+        "cell": "INPUTS!B18",
+        "value": 100
+      },
+      {
+        "cell": "INPUTS!B19",
+        "value": 150
+      },
+      {
+        "cell": "INPUTS!B20",
+        "value": 200
+      }
+    ],
+    "feeds": [
+      {
+        "cell": "INPUTS!B21",
+        "value": 0.1
+      },
+      {
+        "cell": "INPUTS!B22",
+        "value": 0.15
+      },
+      {
+        "cell": "INPUTS!B23",
+        "value": 0.2
+      }
+    ],
+    "weights": [
+      {
+        "cell": "DECISION MATRIX!K5",
+        "value": 0.3
+      },
+      {
+        "cell": "DECISION MATRIX!K6",
+        "value": 0.25
+      },
+      {
+        "cell": "DECISION MATRIX!K7",
+        "value": 0.15
+      },
+      {
+        "cell": "DECISION MATRIX!K8",
+        "value": 0.3
+      }
+    ],
+    "liveSpeed": {
+      "cell": "SIMULATOR!B4",
+      "value": 150
+    },
+    "liveFeed": {
+      "cell": "SIMULATOR!B5",
+      "value": 0.15
+    }
+  },
+  "derived": {
+    "effRa": {
+      "cell": "INPUTS!E13",
+      "value": 1.6,
+      "formula": "=IF(E11=\"A\",0.8,B11)"
+    },
+    "effBatch": {
+      "cell": "INPUTS!E14",
+      "value": 2000,
+      "formula": "=IF(E11=\"B\",3500,B17)"
+    },
+    "effLife": {
+      "cell": "INPUTS!E15",
+      "value": 30,
+      "formula": "=IF(E11=\"C\",B16*0.6,B16)"
+    },
+    "ap": {
+      "cell": "INPUTS!E16",
+      "value": 0.5,
+      "formula": "=(B4-B5)/2"
+    },
+    "meanDiameter": {
+      "cell": "INPUTS!E17",
+      "value": 49.5,
+      "formula": "=(B4+B5)/2"
+    }
+  },
+  "live": {
+    "ap": {
+      "cell": "SIMULATOR!B8",
+      "value": 0.5,
+      "formula": "=INPUTS!E16"
+    },
+    "rpm": {
+      "cell": "SIMULATOR!B9",
+      "value": 964.5754126781535,
+      "formula": "=1000*B4/(PI()*INPUTS!E17)"
+    },
+    "mrr": {
+      "cell": "SIMULATOR!B10",
+      "value": 11250,
+      "formula": "=1000*B4*B5*B8"
+    },
+    "ra": {
+      "cell": "SIMULATOR!B11",
+      "value": 0.87890625,
+      "formula": "=1000*B5^2/(32*INPUTS!B7)"
+    },
+    "force": {
+      "cell": "SIMULATOR!B12",
+      "value": 135,
+      "formula": "=INPUTS!B8*B8*B5"
+    },
+    "cutPower": {
+      "cell": "SIMULATOR!B13",
+      "value": 0.3375,
+      "formula": "=B12*B4/60000"
+    },
+    "inputPower": {
+      "cell": "SIMULATOR!B14",
+      "value": 0.3970588235294118,
+      "formula": "=B13/INPUTS!B9"
+    },
+    "cutTime": {
+      "cell": "SIMULATOR!B15",
+      "value": 41.46902302738527,
+      "formula": "=60*INPUTS!B6/(B5*B9)"
+    },
+    "cycle": {
+      "cell": "SIMULATOR!B16",
+      "value": 71.46902302738528,
+      "formula": "=B15+INPUTS!B13"
+    },
+    "cost": {
+      "cell": "SIMULATOR!B17",
+      "value": 1.3927359123950995,
+      "formula": "=B16/3600*INPUTS!B12+B15/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+    },
+    "status": {
+      "cell": "SIMULATOR!B18",
+      "value": "FEASIBLE",
+      "formula": "=IF(AND(B11<=INPUTS!E13,B14<=INPUTS!B10),\"FEASIBLE\",\"NOT FEASIBLE\")"
+    }
+  },
+  "trials": [
+    {
+      "id": {
+        "cell": "9 TRIALS!A5",
+        "value": 1
+      },
+      "v": {
+        "cell": "9 TRIALS!B5",
+        "value": 100,
+        "formula": "=INPUTS!B18"
+      },
+      "f": {
+        "cell": "9 TRIALS!C5",
+        "value": 0.1,
+        "formula": "=INPUTS!B21"
+      },
+      "ap": {
+        "cell": "9 TRIALS!D5",
+        "value": 0.5,
+        "formula": "=INPUTS!E16"
+      },
+      "rpm": {
+        "cell": "9 TRIALS!E5",
+        "value": 643.050275118769,
+        "formula": "=1000*B5/(PI()*INPUTS!E17)"
+      },
+      "mrr": {
+        "cell": "9 TRIALS!F5",
+        "value": 5000,
+        "formula": "=1000*B5*C5*D5"
+      },
+      "ra": {
+        "cell": "9 TRIALS!G5",
+        "value": 0.39062500000000006,
+        "formula": "=1000*C5^2/(32*INPUTS!B7)"
+      },
+      "force": {
+        "cell": "9 TRIALS!H5",
+        "value": 90,
+        "formula": "=INPUTS!B8*D5*C5"
+      },
+      "cutPower": {
+        "cell": "9 TRIALS!I5",
+        "value": 0.15,
+        "formula": "=H5*B5/60000"
+      },
+      "inputPower": {
+        "cell": "9 TRIALS!J5",
+        "value": 0.17647058823529413,
+        "formula": "=I5/INPUTS!B9"
+      },
+      "cutTime": {
+        "cell": "9 TRIALS!K5",
+        "value": 93.30530181161686,
+        "formula": "=60*INPUTS!B6/(C5*E5)"
+      },
+      "cycle": {
+        "cell": "9 TRIALS!L5",
+        "value": 123.30530181161686,
+        "formula": "=K5+INPUTS!B13"
+      },
+      "cost": {
+        "cell": "9 TRIALS!M5",
+        "value": 2.508655802888974,
+        "formula": "=L5/3600*INPUTS!B12+K5/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "status": {
+        "cell": "9 TRIALS!N5",
+        "value": "FEASIBLE",
+        "formula": "=IF(AND(G5<=INPUTS!E13,J5<=INPUTS!B10),\"FEASIBLE\",\"NOT FEASIBLE\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "9 TRIALS!A6",
+        "value": 2
+      },
+      "v": {
+        "cell": "9 TRIALS!B6",
+        "value": 100,
+        "formula": "=INPUTS!B18"
+      },
+      "f": {
+        "cell": "9 TRIALS!C6",
+        "value": 0.15,
+        "formula": "=INPUTS!B22"
+      },
+      "ap": {
+        "cell": "9 TRIALS!D6",
+        "value": 0.5,
+        "formula": "=INPUTS!E16"
+      },
+      "rpm": {
+        "cell": "9 TRIALS!E6",
+        "value": 643.050275118769,
+        "formula": "=1000*B6/(PI()*INPUTS!E17)"
+      },
+      "mrr": {
+        "cell": "9 TRIALS!F6",
+        "value": 7500,
+        "formula": "=1000*B6*C6*D6"
+      },
+      "ra": {
+        "cell": "9 TRIALS!G6",
+        "value": 0.87890625,
+        "formula": "=1000*C6^2/(32*INPUTS!B7)"
+      },
+      "force": {
+        "cell": "9 TRIALS!H6",
+        "value": 135,
+        "formula": "=INPUTS!B8*D6*C6"
+      },
+      "cutPower": {
+        "cell": "9 TRIALS!I6",
+        "value": 0.225,
+        "formula": "=H6*B6/60000"
+      },
+      "inputPower": {
+        "cell": "9 TRIALS!J6",
+        "value": 0.2647058823529412,
+        "formula": "=I6/INPUTS!B9"
+      },
+      "cutTime": {
+        "cell": "9 TRIALS!K6",
+        "value": 62.20353454107791,
+        "formula": "=60*INPUTS!B6/(C6*E6)"
+      },
+      "cycle": {
+        "cell": "9 TRIALS!L6",
+        "value": 92.20353454107791,
+        "formula": "=K6+INPUTS!B13"
+      },
+      "cost": {
+        "cell": "9 TRIALS!M6",
+        "value": 1.8391038685926495,
+        "formula": "=L6/3600*INPUTS!B12+K6/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "status": {
+        "cell": "9 TRIALS!N6",
+        "value": "FEASIBLE",
+        "formula": "=IF(AND(G6<=INPUTS!E13,J6<=INPUTS!B10),\"FEASIBLE\",\"NOT FEASIBLE\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "9 TRIALS!A7",
+        "value": 3
+      },
+      "v": {
+        "cell": "9 TRIALS!B7",
+        "value": 100,
+        "formula": "=INPUTS!B18"
+      },
+      "f": {
+        "cell": "9 TRIALS!C7",
+        "value": 0.2,
+        "formula": "=INPUTS!B23"
+      },
+      "ap": {
+        "cell": "9 TRIALS!D7",
+        "value": 0.5,
+        "formula": "=INPUTS!E16"
+      },
+      "rpm": {
+        "cell": "9 TRIALS!E7",
+        "value": 643.050275118769,
+        "formula": "=1000*B7/(PI()*INPUTS!E17)"
+      },
+      "mrr": {
+        "cell": "9 TRIALS!F7",
+        "value": 10000,
+        "formula": "=1000*B7*C7*D7"
+      },
+      "ra": {
+        "cell": "9 TRIALS!G7",
+        "value": 1.5625000000000002,
+        "formula": "=1000*C7^2/(32*INPUTS!B7)"
+      },
+      "force": {
+        "cell": "9 TRIALS!H7",
+        "value": 180,
+        "formula": "=INPUTS!B8*D7*C7"
+      },
+      "cutPower": {
+        "cell": "9 TRIALS!I7",
+        "value": 0.3,
+        "formula": "=H7*B7/60000"
+      },
+      "inputPower": {
+        "cell": "9 TRIALS!J7",
+        "value": 0.35294117647058826,
+        "formula": "=I7/INPUTS!B9"
+      },
+      "cutTime": {
+        "cell": "9 TRIALS!K7",
+        "value": 46.65265090580843,
+        "formula": "=60*INPUTS!B6/(C7*E7)"
+      },
+      "cycle": {
+        "cell": "9 TRIALS!L7",
+        "value": 76.65265090580843,
+        "formula": "=K7+INPUTS!B13"
+      },
+      "cost": {
+        "cell": "9 TRIALS!M7",
+        "value": 1.504327901444487,
+        "formula": "=L7/3600*INPUTS!B12+K7/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "status": {
+        "cell": "9 TRIALS!N7",
+        "value": "FEASIBLE",
+        "formula": "=IF(AND(G7<=INPUTS!E13,J7<=INPUTS!B10),\"FEASIBLE\",\"NOT FEASIBLE\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "9 TRIALS!A8",
+        "value": 4
+      },
+      "v": {
+        "cell": "9 TRIALS!B8",
+        "value": 150,
+        "formula": "=INPUTS!B19"
+      },
+      "f": {
+        "cell": "9 TRIALS!C8",
+        "value": 0.1,
+        "formula": "=INPUTS!B21"
+      },
+      "ap": {
+        "cell": "9 TRIALS!D8",
+        "value": 0.5,
+        "formula": "=INPUTS!E16"
+      },
+      "rpm": {
+        "cell": "9 TRIALS!E8",
+        "value": 964.5754126781535,
+        "formula": "=1000*B8/(PI()*INPUTS!E17)"
+      },
+      "mrr": {
+        "cell": "9 TRIALS!F8",
+        "value": 7500,
+        "formula": "=1000*B8*C8*D8"
+      },
+      "ra": {
+        "cell": "9 TRIALS!G8",
+        "value": 0.39062500000000006,
+        "formula": "=1000*C8^2/(32*INPUTS!B7)"
+      },
+      "force": {
+        "cell": "9 TRIALS!H8",
+        "value": 90,
+        "formula": "=INPUTS!B8*D8*C8"
+      },
+      "cutPower": {
+        "cell": "9 TRIALS!I8",
+        "value": 0.225,
+        "formula": "=H8*B8/60000"
+      },
+      "inputPower": {
+        "cell": "9 TRIALS!J8",
+        "value": 0.2647058823529412,
+        "formula": "=I8/INPUTS!B9"
+      },
+      "cutTime": {
+        "cell": "9 TRIALS!K8",
+        "value": 62.20353454107791,
+        "formula": "=60*INPUTS!B6/(C8*E8)"
+      },
+      "cycle": {
+        "cell": "9 TRIALS!L8",
+        "value": 92.20353454107791,
+        "formula": "=K8+INPUTS!B13"
+      },
+      "cost": {
+        "cell": "9 TRIALS!M8",
+        "value": 1.8391038685926495,
+        "formula": "=L8/3600*INPUTS!B12+K8/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "status": {
+        "cell": "9 TRIALS!N8",
+        "value": "FEASIBLE",
+        "formula": "=IF(AND(G8<=INPUTS!E13,J8<=INPUTS!B10),\"FEASIBLE\",\"NOT FEASIBLE\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "9 TRIALS!A9",
+        "value": 5
+      },
+      "v": {
+        "cell": "9 TRIALS!B9",
+        "value": 150,
+        "formula": "=INPUTS!B19"
+      },
+      "f": {
+        "cell": "9 TRIALS!C9",
+        "value": 0.15,
+        "formula": "=INPUTS!B22"
+      },
+      "ap": {
+        "cell": "9 TRIALS!D9",
+        "value": 0.5,
+        "formula": "=INPUTS!E16"
+      },
+      "rpm": {
+        "cell": "9 TRIALS!E9",
+        "value": 964.5754126781535,
+        "formula": "=1000*B9/(PI()*INPUTS!E17)"
+      },
+      "mrr": {
+        "cell": "9 TRIALS!F9",
+        "value": 11250,
+        "formula": "=1000*B9*C9*D9"
+      },
+      "ra": {
+        "cell": "9 TRIALS!G9",
+        "value": 0.87890625,
+        "formula": "=1000*C9^2/(32*INPUTS!B7)"
+      },
+      "force": {
+        "cell": "9 TRIALS!H9",
+        "value": 135,
+        "formula": "=INPUTS!B8*D9*C9"
+      },
+      "cutPower": {
+        "cell": "9 TRIALS!I9",
+        "value": 0.3375,
+        "formula": "=H9*B9/60000"
+      },
+      "inputPower": {
+        "cell": "9 TRIALS!J9",
+        "value": 0.3970588235294118,
+        "formula": "=I9/INPUTS!B9"
+      },
+      "cutTime": {
+        "cell": "9 TRIALS!K9",
+        "value": 41.46902302738527,
+        "formula": "=60*INPUTS!B6/(C9*E9)"
+      },
+      "cycle": {
+        "cell": "9 TRIALS!L9",
+        "value": 71.46902302738528,
+        "formula": "=K9+INPUTS!B13"
+      },
+      "cost": {
+        "cell": "9 TRIALS!M9",
+        "value": 1.3927359123950995,
+        "formula": "=L9/3600*INPUTS!B12+K9/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "status": {
+        "cell": "9 TRIALS!N9",
+        "value": "FEASIBLE",
+        "formula": "=IF(AND(G9<=INPUTS!E13,J9<=INPUTS!B10),\"FEASIBLE\",\"NOT FEASIBLE\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "9 TRIALS!A10",
+        "value": 6
+      },
+      "v": {
+        "cell": "9 TRIALS!B10",
+        "value": 150,
+        "formula": "=INPUTS!B19"
+      },
+      "f": {
+        "cell": "9 TRIALS!C10",
+        "value": 0.2,
+        "formula": "=INPUTS!B23"
+      },
+      "ap": {
+        "cell": "9 TRIALS!D10",
+        "value": 0.5,
+        "formula": "=INPUTS!E16"
+      },
+      "rpm": {
+        "cell": "9 TRIALS!E10",
+        "value": 964.5754126781535,
+        "formula": "=1000*B10/(PI()*INPUTS!E17)"
+      },
+      "mrr": {
+        "cell": "9 TRIALS!F10",
+        "value": 15000,
+        "formula": "=1000*B10*C10*D10"
+      },
+      "ra": {
+        "cell": "9 TRIALS!G10",
+        "value": 1.5625000000000002,
+        "formula": "=1000*C10^2/(32*INPUTS!B7)"
+      },
+      "force": {
+        "cell": "9 TRIALS!H10",
+        "value": 180,
+        "formula": "=INPUTS!B8*D10*C10"
+      },
+      "cutPower": {
+        "cell": "9 TRIALS!I10",
+        "value": 0.45,
+        "formula": "=H10*B10/60000"
+      },
+      "inputPower": {
+        "cell": "9 TRIALS!J10",
+        "value": 0.5294117647058824,
+        "formula": "=I10/INPUTS!B9"
+      },
+      "cutTime": {
+        "cell": "9 TRIALS!K10",
+        "value": 31.101767270538954,
+        "formula": "=60*INPUTS!B6/(C10*E10)"
+      },
+      "cycle": {
+        "cell": "9 TRIALS!L10",
+        "value": 61.10176727053896,
+        "formula": "=K10+INPUTS!B13"
+      },
+      "cost": {
+        "cell": "9 TRIALS!M10",
+        "value": 1.1695519342963248,
+        "formula": "=L10/3600*INPUTS!B12+K10/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "status": {
+        "cell": "9 TRIALS!N10",
+        "value": "FEASIBLE",
+        "formula": "=IF(AND(G10<=INPUTS!E13,J10<=INPUTS!B10),\"FEASIBLE\",\"NOT FEASIBLE\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "9 TRIALS!A11",
+        "value": 7
+      },
+      "v": {
+        "cell": "9 TRIALS!B11",
+        "value": 200,
+        "formula": "=INPUTS!B20"
+      },
+      "f": {
+        "cell": "9 TRIALS!C11",
+        "value": 0.1,
+        "formula": "=INPUTS!B21"
+      },
+      "ap": {
+        "cell": "9 TRIALS!D11",
+        "value": 0.5,
+        "formula": "=INPUTS!E16"
+      },
+      "rpm": {
+        "cell": "9 TRIALS!E11",
+        "value": 1286.100550237538,
+        "formula": "=1000*B11/(PI()*INPUTS!E17)"
+      },
+      "mrr": {
+        "cell": "9 TRIALS!F11",
+        "value": 10000,
+        "formula": "=1000*B11*C11*D11"
+      },
+      "ra": {
+        "cell": "9 TRIALS!G11",
+        "value": 0.39062500000000006,
+        "formula": "=1000*C11^2/(32*INPUTS!B7)"
+      },
+      "force": {
+        "cell": "9 TRIALS!H11",
+        "value": 90,
+        "formula": "=INPUTS!B8*D11*C11"
+      },
+      "cutPower": {
+        "cell": "9 TRIALS!I11",
+        "value": 0.3,
+        "formula": "=H11*B11/60000"
+      },
+      "inputPower": {
+        "cell": "9 TRIALS!J11",
+        "value": 0.35294117647058826,
+        "formula": "=I11/INPUTS!B9"
+      },
+      "cutTime": {
+        "cell": "9 TRIALS!K11",
+        "value": 46.65265090580843,
+        "formula": "=60*INPUTS!B6/(C11*E11)"
+      },
+      "cycle": {
+        "cell": "9 TRIALS!L11",
+        "value": 76.65265090580843,
+        "formula": "=K11+INPUTS!B13"
+      },
+      "cost": {
+        "cell": "9 TRIALS!M11",
+        "value": 1.504327901444487,
+        "formula": "=L11/3600*INPUTS!B12+K11/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "status": {
+        "cell": "9 TRIALS!N11",
+        "value": "FEASIBLE",
+        "formula": "=IF(AND(G11<=INPUTS!E13,J11<=INPUTS!B10),\"FEASIBLE\",\"NOT FEASIBLE\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "9 TRIALS!A12",
+        "value": 8
+      },
+      "v": {
+        "cell": "9 TRIALS!B12",
+        "value": 200,
+        "formula": "=INPUTS!B20"
+      },
+      "f": {
+        "cell": "9 TRIALS!C12",
+        "value": 0.15,
+        "formula": "=INPUTS!B22"
+      },
+      "ap": {
+        "cell": "9 TRIALS!D12",
+        "value": 0.5,
+        "formula": "=INPUTS!E16"
+      },
+      "rpm": {
+        "cell": "9 TRIALS!E12",
+        "value": 1286.100550237538,
+        "formula": "=1000*B12/(PI()*INPUTS!E17)"
+      },
+      "mrr": {
+        "cell": "9 TRIALS!F12",
+        "value": 15000,
+        "formula": "=1000*B12*C12*D12"
+      },
+      "ra": {
+        "cell": "9 TRIALS!G12",
+        "value": 0.87890625,
+        "formula": "=1000*C12^2/(32*INPUTS!B7)"
+      },
+      "force": {
+        "cell": "9 TRIALS!H12",
+        "value": 135,
+        "formula": "=INPUTS!B8*D12*C12"
+      },
+      "cutPower": {
+        "cell": "9 TRIALS!I12",
+        "value": 0.45,
+        "formula": "=H12*B12/60000"
+      },
+      "inputPower": {
+        "cell": "9 TRIALS!J12",
+        "value": 0.5294117647058824,
+        "formula": "=I12/INPUTS!B9"
+      },
+      "cutTime": {
+        "cell": "9 TRIALS!K12",
+        "value": 31.101767270538954,
+        "formula": "=60*INPUTS!B6/(C12*E12)"
+      },
+      "cycle": {
+        "cell": "9 TRIALS!L12",
+        "value": 61.10176727053896,
+        "formula": "=K12+INPUTS!B13"
+      },
+      "cost": {
+        "cell": "9 TRIALS!M12",
+        "value": 1.1695519342963248,
+        "formula": "=L12/3600*INPUTS!B12+K12/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "status": {
+        "cell": "9 TRIALS!N12",
+        "value": "FEASIBLE",
+        "formula": "=IF(AND(G12<=INPUTS!E13,J12<=INPUTS!B10),\"FEASIBLE\",\"NOT FEASIBLE\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "9 TRIALS!A13",
+        "value": 9
+      },
+      "v": {
+        "cell": "9 TRIALS!B13",
+        "value": 200,
+        "formula": "=INPUTS!B20"
+      },
+      "f": {
+        "cell": "9 TRIALS!C13",
+        "value": 0.2,
+        "formula": "=INPUTS!B23"
+      },
+      "ap": {
+        "cell": "9 TRIALS!D13",
+        "value": 0.5,
+        "formula": "=INPUTS!E16"
+      },
+      "rpm": {
+        "cell": "9 TRIALS!E13",
+        "value": 1286.100550237538,
+        "formula": "=1000*B13/(PI()*INPUTS!E17)"
+      },
+      "mrr": {
+        "cell": "9 TRIALS!F13",
+        "value": 20000,
+        "formula": "=1000*B13*C13*D13"
+      },
+      "ra": {
+        "cell": "9 TRIALS!G13",
+        "value": 1.5625000000000002,
+        "formula": "=1000*C13^2/(32*INPUTS!B7)"
+      },
+      "force": {
+        "cell": "9 TRIALS!H13",
+        "value": 180,
+        "formula": "=INPUTS!B8*D13*C13"
+      },
+      "cutPower": {
+        "cell": "9 TRIALS!I13",
+        "value": 0.6,
+        "formula": "=H13*B13/60000"
+      },
+      "inputPower": {
+        "cell": "9 TRIALS!J13",
+        "value": 0.7058823529411765,
+        "formula": "=I13/INPUTS!B9"
+      },
+      "cutTime": {
+        "cell": "9 TRIALS!K13",
+        "value": 23.326325452904214,
+        "formula": "=60*INPUTS!B6/(C13*E13)"
+      },
+      "cycle": {
+        "cell": "9 TRIALS!L13",
+        "value": 53.326325452904214,
+        "formula": "=K13+INPUTS!B13"
+      },
+      "cost": {
+        "cell": "9 TRIALS!M13",
+        "value": 1.0021639507222435,
+        "formula": "=L13/3600*INPUTS!B12+K13/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "status": {
+        "cell": "9 TRIALS!N13",
+        "value": "FEASIBLE",
+        "formula": "=IF(AND(G13<=INPUTS!E13,J13<=INPUTS!B10),\"FEASIBLE\",\"NOT FEASIBLE\")"
+      }
+    }
+  ],
+  "costAnalysis": [
+    {
+      "id": {
+        "cell": "COST ANALYSIS!A5",
+        "value": 1,
+        "formula": "='9 TRIALS'!A5"
+      },
+      "cost": {
+        "cell": "COST ANALYSIS!B5",
+        "value": 2.508655802888974,
+        "formula": "='9 TRIALS'!M5"
+      },
+      "batchCost": {
+        "cell": "COST ANALYSIS!C5",
+        "value": 5017.311605777948,
+        "formula": "=B5*INPUTS!E14"
+      },
+      "batchHours": {
+        "cell": "COST ANALYSIS!D5",
+        "value": 68.50294545089825,
+        "formula": "='9 TRIALS'!L5*INPUTS!E14/3600"
+      },
+      "toolCost": {
+        "cell": "COST ANALYSIS!E5",
+        "value": 0.4535674393620264,
+        "formula": "='9 TRIALS'!K5/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife15": {
+        "cell": "COST ANALYSIS!F5",
+        "value": 2.9622232422510004,
+        "formula": "='9 TRIALS'!L5/3600*INPUTS!B12+'9 TRIALS'!K5/60/15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife30": {
+        "cell": "COST ANALYSIS!G5",
+        "value": 2.508655802888974,
+        "formula": "='9 TRIALS'!L5/3600*INPUTS!B12+'9 TRIALS'!K5/60/30*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife60": {
+        "cell": "COST ANALYSIS!H5",
+        "value": 2.281872083207961,
+        "formula": "='9 TRIALS'!L5/3600*INPUTS!B12+'9 TRIALS'!K5/60/60*(INPUTS!B14/INPUTS!B15)"
+      }
+    },
+    {
+      "id": {
+        "cell": "COST ANALYSIS!A6",
+        "value": 2,
+        "formula": "='9 TRIALS'!A6"
+      },
+      "cost": {
+        "cell": "COST ANALYSIS!B6",
+        "value": 1.8391038685926495,
+        "formula": "='9 TRIALS'!M6"
+      },
+      "batchCost": {
+        "cell": "COST ANALYSIS!C6",
+        "value": 3678.207737185299,
+        "formula": "=B6*INPUTS!E14"
+      },
+      "batchHours": {
+        "cell": "COST ANALYSIS!D6",
+        "value": 51.22418585615439,
+        "formula": "='9 TRIALS'!L6*INPUTS!E14/3600"
+      },
+      "toolCost": {
+        "cell": "COST ANALYSIS!E6",
+        "value": 0.3023782929080176,
+        "formula": "='9 TRIALS'!K6/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife15": {
+        "cell": "COST ANALYSIS!F6",
+        "value": 2.141482161500667,
+        "formula": "='9 TRIALS'!L6/3600*INPUTS!B12+'9 TRIALS'!K6/60/15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife30": {
+        "cell": "COST ANALYSIS!G6",
+        "value": 1.8391038685926495,
+        "formula": "='9 TRIALS'!L6/3600*INPUTS!B12+'9 TRIALS'!K6/60/30*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife60": {
+        "cell": "COST ANALYSIS!H6",
+        "value": 1.6879147221386406,
+        "formula": "='9 TRIALS'!L6/3600*INPUTS!B12+'9 TRIALS'!K6/60/60*(INPUTS!B14/INPUTS!B15)"
+      }
+    },
+    {
+      "id": {
+        "cell": "COST ANALYSIS!A7",
+        "value": 3,
+        "formula": "='9 TRIALS'!A7"
+      },
+      "cost": {
+        "cell": "COST ANALYSIS!B7",
+        "value": 1.504327901444487,
+        "formula": "='9 TRIALS'!M7"
+      },
+      "batchCost": {
+        "cell": "COST ANALYSIS!C7",
+        "value": 3008.655802888974,
+        "formula": "=B7*INPUTS!E14"
+      },
+      "batchHours": {
+        "cell": "COST ANALYSIS!D7",
+        "value": 42.58480605878246,
+        "formula": "='9 TRIALS'!L7*INPUTS!E14/3600"
+      },
+      "toolCost": {
+        "cell": "COST ANALYSIS!E7",
+        "value": 0.2267837196810132,
+        "formula": "='9 TRIALS'!K7/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife15": {
+        "cell": "COST ANALYSIS!F7",
+        "value": 1.7311116211255002,
+        "formula": "='9 TRIALS'!L7/3600*INPUTS!B12+'9 TRIALS'!K7/60/15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife30": {
+        "cell": "COST ANALYSIS!G7",
+        "value": 1.504327901444487,
+        "formula": "='9 TRIALS'!L7/3600*INPUTS!B12+'9 TRIALS'!K7/60/30*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife60": {
+        "cell": "COST ANALYSIS!H7",
+        "value": 1.3909360416039804,
+        "formula": "='9 TRIALS'!L7/3600*INPUTS!B12+'9 TRIALS'!K7/60/60*(INPUTS!B14/INPUTS!B15)"
+      }
+    },
+    {
+      "id": {
+        "cell": "COST ANALYSIS!A8",
+        "value": 4,
+        "formula": "='9 TRIALS'!A8"
+      },
+      "cost": {
+        "cell": "COST ANALYSIS!B8",
+        "value": 1.8391038685926495,
+        "formula": "='9 TRIALS'!M8"
+      },
+      "batchCost": {
+        "cell": "COST ANALYSIS!C8",
+        "value": 3678.207737185299,
+        "formula": "=B8*INPUTS!E14"
+      },
+      "batchHours": {
+        "cell": "COST ANALYSIS!D8",
+        "value": 51.22418585615439,
+        "formula": "='9 TRIALS'!L8*INPUTS!E14/3600"
+      },
+      "toolCost": {
+        "cell": "COST ANALYSIS!E8",
+        "value": 0.3023782929080176,
+        "formula": "='9 TRIALS'!K8/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife15": {
+        "cell": "COST ANALYSIS!F8",
+        "value": 2.141482161500667,
+        "formula": "='9 TRIALS'!L8/3600*INPUTS!B12+'9 TRIALS'!K8/60/15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife30": {
+        "cell": "COST ANALYSIS!G8",
+        "value": 1.8391038685926495,
+        "formula": "='9 TRIALS'!L8/3600*INPUTS!B12+'9 TRIALS'!K8/60/30*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife60": {
+        "cell": "COST ANALYSIS!H8",
+        "value": 1.6879147221386406,
+        "formula": "='9 TRIALS'!L8/3600*INPUTS!B12+'9 TRIALS'!K8/60/60*(INPUTS!B14/INPUTS!B15)"
+      }
+    },
+    {
+      "id": {
+        "cell": "COST ANALYSIS!A9",
+        "value": 5,
+        "formula": "='9 TRIALS'!A9"
+      },
+      "cost": {
+        "cell": "COST ANALYSIS!B9",
+        "value": 1.3927359123950995,
+        "formula": "='9 TRIALS'!M9"
+      },
+      "batchCost": {
+        "cell": "COST ANALYSIS!C9",
+        "value": 2785.471824790199,
+        "formula": "=B9*INPUTS!E14"
+      },
+      "batchHours": {
+        "cell": "COST ANALYSIS!D9",
+        "value": 39.70501279299182,
+        "formula": "='9 TRIALS'!L9*INPUTS!E14/3600"
+      },
+      "toolCost": {
+        "cell": "COST ANALYSIS!E9",
+        "value": 0.20158552860534507,
+        "formula": "='9 TRIALS'!K9/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife15": {
+        "cell": "COST ANALYSIS!F9",
+        "value": 1.5943214410004447,
+        "formula": "='9 TRIALS'!L9/3600*INPUTS!B12+'9 TRIALS'!K9/60/15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife30": {
+        "cell": "COST ANALYSIS!G9",
+        "value": 1.3927359123950995,
+        "formula": "='9 TRIALS'!L9/3600*INPUTS!B12+'9 TRIALS'!K9/60/30*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife60": {
+        "cell": "COST ANALYSIS!H9",
+        "value": 1.291943148092427,
+        "formula": "='9 TRIALS'!L9/3600*INPUTS!B12+'9 TRIALS'!K9/60/60*(INPUTS!B14/INPUTS!B15)"
+      }
+    },
+    {
+      "id": {
+        "cell": "COST ANALYSIS!A10",
+        "value": 6,
+        "formula": "='9 TRIALS'!A10"
+      },
+      "cost": {
+        "cell": "COST ANALYSIS!B10",
+        "value": 1.1695519342963248,
+        "formula": "='9 TRIALS'!M10"
+      },
+      "batchCost": {
+        "cell": "COST ANALYSIS!C10",
+        "value": 2339.1038685926496,
+        "formula": "=B10*INPUTS!E14"
+      },
+      "batchHours": {
+        "cell": "COST ANALYSIS!D10",
+        "value": 33.94542626141053,
+        "formula": "='9 TRIALS'!L10*INPUTS!E14/3600"
+      },
+      "toolCost": {
+        "cell": "COST ANALYSIS!E10",
+        "value": 0.1511891464540088,
+        "formula": "='9 TRIALS'!K10/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife15": {
+        "cell": "COST ANALYSIS!F10",
+        "value": 1.3207410807503337,
+        "formula": "='9 TRIALS'!L10/3600*INPUTS!B12+'9 TRIALS'!K10/60/15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife30": {
+        "cell": "COST ANALYSIS!G10",
+        "value": 1.1695519342963248,
+        "formula": "='9 TRIALS'!L10/3600*INPUTS!B12+'9 TRIALS'!K10/60/30*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife60": {
+        "cell": "COST ANALYSIS!H10",
+        "value": 1.0939573610693205,
+        "formula": "='9 TRIALS'!L10/3600*INPUTS!B12+'9 TRIALS'!K10/60/60*(INPUTS!B14/INPUTS!B15)"
+      }
+    },
+    {
+      "id": {
+        "cell": "COST ANALYSIS!A11",
+        "value": 7,
+        "formula": "='9 TRIALS'!A11"
+      },
+      "cost": {
+        "cell": "COST ANALYSIS!B11",
+        "value": 1.504327901444487,
+        "formula": "='9 TRIALS'!M11"
+      },
+      "batchCost": {
+        "cell": "COST ANALYSIS!C11",
+        "value": 3008.655802888974,
+        "formula": "=B11*INPUTS!E14"
+      },
+      "batchHours": {
+        "cell": "COST ANALYSIS!D11",
+        "value": 42.58480605878246,
+        "formula": "='9 TRIALS'!L11*INPUTS!E14/3600"
+      },
+      "toolCost": {
+        "cell": "COST ANALYSIS!E11",
+        "value": 0.2267837196810132,
+        "formula": "='9 TRIALS'!K11/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife15": {
+        "cell": "COST ANALYSIS!F11",
+        "value": 1.7311116211255002,
+        "formula": "='9 TRIALS'!L11/3600*INPUTS!B12+'9 TRIALS'!K11/60/15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife30": {
+        "cell": "COST ANALYSIS!G11",
+        "value": 1.504327901444487,
+        "formula": "='9 TRIALS'!L11/3600*INPUTS!B12+'9 TRIALS'!K11/60/30*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife60": {
+        "cell": "COST ANALYSIS!H11",
+        "value": 1.3909360416039804,
+        "formula": "='9 TRIALS'!L11/3600*INPUTS!B12+'9 TRIALS'!K11/60/60*(INPUTS!B14/INPUTS!B15)"
+      }
+    },
+    {
+      "id": {
+        "cell": "COST ANALYSIS!A12",
+        "value": 8,
+        "formula": "='9 TRIALS'!A12"
+      },
+      "cost": {
+        "cell": "COST ANALYSIS!B12",
+        "value": 1.1695519342963248,
+        "formula": "='9 TRIALS'!M12"
+      },
+      "batchCost": {
+        "cell": "COST ANALYSIS!C12",
+        "value": 2339.1038685926496,
+        "formula": "=B12*INPUTS!E14"
+      },
+      "batchHours": {
+        "cell": "COST ANALYSIS!D12",
+        "value": 33.94542626141053,
+        "formula": "='9 TRIALS'!L12*INPUTS!E14/3600"
+      },
+      "toolCost": {
+        "cell": "COST ANALYSIS!E12",
+        "value": 0.1511891464540088,
+        "formula": "='9 TRIALS'!K12/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife15": {
+        "cell": "COST ANALYSIS!F12",
+        "value": 1.3207410807503337,
+        "formula": "='9 TRIALS'!L12/3600*INPUTS!B12+'9 TRIALS'!K12/60/15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife30": {
+        "cell": "COST ANALYSIS!G12",
+        "value": 1.1695519342963248,
+        "formula": "='9 TRIALS'!L12/3600*INPUTS!B12+'9 TRIALS'!K12/60/30*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife60": {
+        "cell": "COST ANALYSIS!H12",
+        "value": 1.0939573610693205,
+        "formula": "='9 TRIALS'!L12/3600*INPUTS!B12+'9 TRIALS'!K12/60/60*(INPUTS!B14/INPUTS!B15)"
+      }
+    },
+    {
+      "id": {
+        "cell": "COST ANALYSIS!A13",
+        "value": 9,
+        "formula": "='9 TRIALS'!A13"
+      },
+      "cost": {
+        "cell": "COST ANALYSIS!B13",
+        "value": 1.0021639507222435,
+        "formula": "='9 TRIALS'!M13"
+      },
+      "batchCost": {
+        "cell": "COST ANALYSIS!C13",
+        "value": 2004.327901444487,
+        "formula": "=B13*INPUTS!E14"
+      },
+      "batchHours": {
+        "cell": "COST ANALYSIS!D13",
+        "value": 29.625736362724567,
+        "formula": "='9 TRIALS'!L13*INPUTS!E14/3600"
+      },
+      "toolCost": {
+        "cell": "COST ANALYSIS!E13",
+        "value": 0.1133918598405066,
+        "formula": "='9 TRIALS'!K13/60/INPUTS!E15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife15": {
+        "cell": "COST ANALYSIS!F13",
+        "value": 1.11555581056275,
+        "formula": "='9 TRIALS'!L13/3600*INPUTS!B12+'9 TRIALS'!K13/60/15*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife30": {
+        "cell": "COST ANALYSIS!G13",
+        "value": 1.0021639507222435,
+        "formula": "='9 TRIALS'!L13/3600*INPUTS!B12+'9 TRIALS'!K13/60/30*(INPUTS!B14/INPUTS!B15)"
+      },
+      "costLife60": {
+        "cell": "COST ANALYSIS!H13",
+        "value": 0.9454680208019901,
+        "formula": "='9 TRIALS'!L13/3600*INPUTS!B12+'9 TRIALS'!K13/60/60*(INPUTS!B14/INPUTS!B15)"
+      }
+    }
+  ],
+  "decision": [
+    {
+      "id": {
+        "cell": "DECISION MATRIX!A5",
+        "value": 1,
+        "formula": "='9 TRIALS'!A5"
+      },
+      "raScore": {
+        "cell": "DECISION MATRIX!B5",
+        "value": 100,
+        "formula": "=IF(MAX('9 TRIALS'!$G$5:$G$13)=MIN('9 TRIALS'!$G$5:$G$13),100,100*(MAX('9 TRIALS'!$G$5:$G$13)-'9 TRIALS'!G5)/(MAX('9 TRIALS'!$G$5:$G$13)-MIN('9 TRIALS'!$G$5:$G$13)))"
+      },
+      "mrrScore": {
+        "cell": "DECISION MATRIX!C5",
+        "value": 25,
+        "formula": "=100*'9 TRIALS'!F5/MAX('9 TRIALS'!$F$5:$F$13)"
+      },
+      "powerScore": {
+        "cell": "DECISION MATRIX!D5",
+        "value": 100,
+        "formula": "=100*MIN('9 TRIALS'!$J$5:$J$13)/'9 TRIALS'!J5"
+      },
+      "costScore": {
+        "cell": "DECISION MATRIX!E5",
+        "value": 39.94824437725371,
+        "formula": "=100*MIN('9 TRIALS'!$M$5:$M$13)/'9 TRIALS'!M5"
+      },
+      "weighted": {
+        "cell": "DECISION MATRIX!F5",
+        "value": 63.23447331317611,
+        "formula": "=IF(G5=\"FEASIBLE\",B5*$K$5+C5*$K$6+D5*$K$7+E5*$K$8,0)"
+      },
+      "status": {
+        "cell": "DECISION MATRIX!G5",
+        "value": "FEASIBLE",
+        "formula": "='9 TRIALS'!N5"
+      },
+      "rank": {
+        "cell": "DECISION MATRIX!H5",
+        "value": 4,
+        "formula": "=IF(G5=\"FEASIBLE\",RANK(F5,$F$5:$F$13,0),\"\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "DECISION MATRIX!A6",
+        "value": 2,
+        "formula": "='9 TRIALS'!A6"
+      },
+      "raScore": {
+        "cell": "DECISION MATRIX!B6",
+        "value": 58.33333333333335,
+        "formula": "=IF(MAX('9 TRIALS'!$G$5:$G$13)=MIN('9 TRIALS'!$G$5:$G$13),100,100*(MAX('9 TRIALS'!$G$5:$G$13)-'9 TRIALS'!G6)/(MAX('9 TRIALS'!$G$5:$G$13)-MIN('9 TRIALS'!$G$5:$G$13)))"
+      },
+      "mrrScore": {
+        "cell": "DECISION MATRIX!C6",
+        "value": 37.5,
+        "formula": "=100*'9 TRIALS'!F6/MAX('9 TRIALS'!$F$5:$F$13)"
+      },
+      "powerScore": {
+        "cell": "DECISION MATRIX!D6",
+        "value": 66.66666666666667,
+        "formula": "=100*MIN('9 TRIALS'!$J$5:$J$13)/'9 TRIALS'!J6"
+      },
+      "costScore": {
+        "cell": "DECISION MATRIX!E6",
+        "value": 54.491971216891436,
+        "formula": "=100*MIN('9 TRIALS'!$M$5:$M$13)/'9 TRIALS'!M6"
+      },
+      "weighted": {
+        "cell": "DECISION MATRIX!F6",
+        "value": 53.22259136506743,
+        "formula": "=IF(G6=\"FEASIBLE\",B6*$K$5+C6*$K$6+D6*$K$7+E6*$K$8,0)"
+      },
+      "status": {
+        "cell": "DECISION MATRIX!G6",
+        "value": "FEASIBLE",
+        "formula": "='9 TRIALS'!N6"
+      },
+      "rank": {
+        "cell": "DECISION MATRIX!H6",
+        "value": 7,
+        "formula": "=IF(G6=\"FEASIBLE\",RANK(F6,$F$5:$F$13,0),\"\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "DECISION MATRIX!A7",
+        "value": 3,
+        "formula": "='9 TRIALS'!A7"
+      },
+      "raScore": {
+        "cell": "DECISION MATRIX!B7",
+        "value": 0,
+        "formula": "=IF(MAX('9 TRIALS'!$G$5:$G$13)=MIN('9 TRIALS'!$G$5:$G$13),100,100*(MAX('9 TRIALS'!$G$5:$G$13)-'9 TRIALS'!G7)/(MAX('9 TRIALS'!$G$5:$G$13)-MIN('9 TRIALS'!$G$5:$G$13)))"
+      },
+      "mrrScore": {
+        "cell": "DECISION MATRIX!C7",
+        "value": 50,
+        "formula": "=100*'9 TRIALS'!F7/MAX('9 TRIALS'!$F$5:$F$13)"
+      },
+      "powerScore": {
+        "cell": "DECISION MATRIX!D7",
+        "value": 50,
+        "formula": "=100*MIN('9 TRIALS'!$J$5:$J$13)/'9 TRIALS'!J7"
+      },
+      "costScore": {
+        "cell": "DECISION MATRIX!E7",
+        "value": 66.61871721982585,
+        "formula": "=100*MIN('9 TRIALS'!$M$5:$M$13)/'9 TRIALS'!M7"
+      },
+      "weighted": {
+        "cell": "DECISION MATRIX!F7",
+        "value": 39.985615165947756,
+        "formula": "=IF(G7=\"FEASIBLE\",B7*$K$5+C7*$K$6+D7*$K$7+E7*$K$8,0)"
+      },
+      "status": {
+        "cell": "DECISION MATRIX!G7",
+        "value": "FEASIBLE",
+        "formula": "='9 TRIALS'!N7"
+      },
+      "rank": {
+        "cell": "DECISION MATRIX!H7",
+        "value": 9,
+        "formula": "=IF(G7=\"FEASIBLE\",RANK(F7,$F$5:$F$13,0),\"\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "DECISION MATRIX!A8",
+        "value": 4,
+        "formula": "='9 TRIALS'!A8"
+      },
+      "raScore": {
+        "cell": "DECISION MATRIX!B8",
+        "value": 100,
+        "formula": "=IF(MAX('9 TRIALS'!$G$5:$G$13)=MIN('9 TRIALS'!$G$5:$G$13),100,100*(MAX('9 TRIALS'!$G$5:$G$13)-'9 TRIALS'!G8)/(MAX('9 TRIALS'!$G$5:$G$13)-MIN('9 TRIALS'!$G$5:$G$13)))"
+      },
+      "mrrScore": {
+        "cell": "DECISION MATRIX!C8",
+        "value": 37.5,
+        "formula": "=100*'9 TRIALS'!F8/MAX('9 TRIALS'!$F$5:$F$13)"
+      },
+      "powerScore": {
+        "cell": "DECISION MATRIX!D8",
+        "value": 66.66666666666667,
+        "formula": "=100*MIN('9 TRIALS'!$J$5:$J$13)/'9 TRIALS'!J8"
+      },
+      "costScore": {
+        "cell": "DECISION MATRIX!E8",
+        "value": 54.491971216891436,
+        "formula": "=100*MIN('9 TRIALS'!$M$5:$M$13)/'9 TRIALS'!M8"
+      },
+      "weighted": {
+        "cell": "DECISION MATRIX!F8",
+        "value": 65.72259136506743,
+        "formula": "=IF(G8=\"FEASIBLE\",B8*$K$5+C8*$K$6+D8*$K$7+E8*$K$8,0)"
+      },
+      "status": {
+        "cell": "DECISION MATRIX!G8",
+        "value": "FEASIBLE",
+        "formula": "='9 TRIALS'!N8"
+      },
+      "rank": {
+        "cell": "DECISION MATRIX!H8",
+        "value": 3,
+        "formula": "=IF(G8=\"FEASIBLE\",RANK(F8,$F$5:$F$13,0),\"\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "DECISION MATRIX!A9",
+        "value": 5,
+        "formula": "='9 TRIALS'!A9"
+      },
+      "raScore": {
+        "cell": "DECISION MATRIX!B9",
+        "value": 58.33333333333335,
+        "formula": "=IF(MAX('9 TRIALS'!$G$5:$G$13)=MIN('9 TRIALS'!$G$5:$G$13),100,100*(MAX('9 TRIALS'!$G$5:$G$13)-'9 TRIALS'!G9)/(MAX('9 TRIALS'!$G$5:$G$13)-MIN('9 TRIALS'!$G$5:$G$13)))"
+      },
+      "mrrScore": {
+        "cell": "DECISION MATRIX!C9",
+        "value": 56.25,
+        "formula": "=100*'9 TRIALS'!F9/MAX('9 TRIALS'!$F$5:$F$13)"
+      },
+      "powerScore": {
+        "cell": "DECISION MATRIX!D9",
+        "value": 44.44444444444444,
+        "formula": "=100*MIN('9 TRIALS'!$J$5:$J$13)/'9 TRIALS'!J9"
+      },
+      "costScore": {
+        "cell": "DECISION MATRIX!E9",
+        "value": 71.95649525535777,
+        "formula": "=100*MIN('9 TRIALS'!$M$5:$M$13)/'9 TRIALS'!M9"
+      },
+      "weighted": {
+        "cell": "DECISION MATRIX!F9",
+        "value": 59.816115243274,
+        "formula": "=IF(G9=\"FEASIBLE\",B9*$K$5+C9*$K$6+D9*$K$7+E9*$K$8,0)"
+      },
+      "status": {
+        "cell": "DECISION MATRIX!G9",
+        "value": "FEASIBLE",
+        "formula": "='9 TRIALS'!N9"
+      },
+      "rank": {
+        "cell": "DECISION MATRIX!H9",
+        "value": 5,
+        "formula": "=IF(G9=\"FEASIBLE\",RANK(F9,$F$5:$F$13,0),\"\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "DECISION MATRIX!A10",
+        "value": 6,
+        "formula": "='9 TRIALS'!A10"
+      },
+      "raScore": {
+        "cell": "DECISION MATRIX!B10",
+        "value": 0,
+        "formula": "=IF(MAX('9 TRIALS'!$G$5:$G$13)=MIN('9 TRIALS'!$G$5:$G$13),100,100*(MAX('9 TRIALS'!$G$5:$G$13)-'9 TRIALS'!G10)/(MAX('9 TRIALS'!$G$5:$G$13)-MIN('9 TRIALS'!$G$5:$G$13)))"
+      },
+      "mrrScore": {
+        "cell": "DECISION MATRIX!C10",
+        "value": 75,
+        "formula": "=100*'9 TRIALS'!F10/MAX('9 TRIALS'!$F$5:$F$13)"
+      },
+      "powerScore": {
+        "cell": "DECISION MATRIX!D10",
+        "value": 33.333333333333336,
+        "formula": "=100*MIN('9 TRIALS'!$J$5:$J$13)/'9 TRIALS'!J10"
+      },
+      "costScore": {
+        "cell": "DECISION MATRIX!E10",
+        "value": 85.68785372709488,
+        "formula": "=100*MIN('9 TRIALS'!$M$5:$M$13)/'9 TRIALS'!M10"
+      },
+      "weighted": {
+        "cell": "DECISION MATRIX!F10",
+        "value": 49.45635611812846,
+        "formula": "=IF(G10=\"FEASIBLE\",B10*$K$5+C10*$K$6+D10*$K$7+E10*$K$8,0)"
+      },
+      "status": {
+        "cell": "DECISION MATRIX!G10",
+        "value": "FEASIBLE",
+        "formula": "='9 TRIALS'!N10"
+      },
+      "rank": {
+        "cell": "DECISION MATRIX!H10",
+        "value": 8,
+        "formula": "=IF(G10=\"FEASIBLE\",RANK(F10,$F$5:$F$13,0),\"\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "DECISION MATRIX!A11",
+        "value": 7,
+        "formula": "='9 TRIALS'!A11"
+      },
+      "raScore": {
+        "cell": "DECISION MATRIX!B11",
+        "value": 100,
+        "formula": "=IF(MAX('9 TRIALS'!$G$5:$G$13)=MIN('9 TRIALS'!$G$5:$G$13),100,100*(MAX('9 TRIALS'!$G$5:$G$13)-'9 TRIALS'!G11)/(MAX('9 TRIALS'!$G$5:$G$13)-MIN('9 TRIALS'!$G$5:$G$13)))"
+      },
+      "mrrScore": {
+        "cell": "DECISION MATRIX!C11",
+        "value": 50,
+        "formula": "=100*'9 TRIALS'!F11/MAX('9 TRIALS'!$F$5:$F$13)"
+      },
+      "powerScore": {
+        "cell": "DECISION MATRIX!D11",
+        "value": 50,
+        "formula": "=100*MIN('9 TRIALS'!$J$5:$J$13)/'9 TRIALS'!J11"
+      },
+      "costScore": {
+        "cell": "DECISION MATRIX!E11",
+        "value": 66.61871721982585,
+        "formula": "=100*MIN('9 TRIALS'!$M$5:$M$13)/'9 TRIALS'!M11"
+      },
+      "weighted": {
+        "cell": "DECISION MATRIX!F11",
+        "value": 69.98561516594776,
+        "formula": "=IF(G11=\"FEASIBLE\",B11*$K$5+C11*$K$6+D11*$K$7+E11*$K$8,0)"
+      },
+      "status": {
+        "cell": "DECISION MATRIX!G11",
+        "value": "FEASIBLE",
+        "formula": "='9 TRIALS'!N11"
+      },
+      "rank": {
+        "cell": "DECISION MATRIX!H11",
+        "value": 1,
+        "formula": "=IF(G11=\"FEASIBLE\",RANK(F11,$F$5:$F$13,0),\"\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "DECISION MATRIX!A12",
+        "value": 8,
+        "formula": "='9 TRIALS'!A12"
+      },
+      "raScore": {
+        "cell": "DECISION MATRIX!B12",
+        "value": 58.33333333333335,
+        "formula": "=IF(MAX('9 TRIALS'!$G$5:$G$13)=MIN('9 TRIALS'!$G$5:$G$13),100,100*(MAX('9 TRIALS'!$G$5:$G$13)-'9 TRIALS'!G12)/(MAX('9 TRIALS'!$G$5:$G$13)-MIN('9 TRIALS'!$G$5:$G$13)))"
+      },
+      "mrrScore": {
+        "cell": "DECISION MATRIX!C12",
+        "value": 75,
+        "formula": "=100*'9 TRIALS'!F12/MAX('9 TRIALS'!$F$5:$F$13)"
+      },
+      "powerScore": {
+        "cell": "DECISION MATRIX!D12",
+        "value": 33.333333333333336,
+        "formula": "=100*MIN('9 TRIALS'!$J$5:$J$13)/'9 TRIALS'!J12"
+      },
+      "costScore": {
+        "cell": "DECISION MATRIX!E12",
+        "value": 85.68785372709488,
+        "formula": "=100*MIN('9 TRIALS'!$M$5:$M$13)/'9 TRIALS'!M12"
+      },
+      "weighted": {
+        "cell": "DECISION MATRIX!F12",
+        "value": 66.95635611812847,
+        "formula": "=IF(G12=\"FEASIBLE\",B12*$K$5+C12*$K$6+D12*$K$7+E12*$K$8,0)"
+      },
+      "status": {
+        "cell": "DECISION MATRIX!G12",
+        "value": "FEASIBLE",
+        "formula": "='9 TRIALS'!N12"
+      },
+      "rank": {
+        "cell": "DECISION MATRIX!H12",
+        "value": 2,
+        "formula": "=IF(G12=\"FEASIBLE\",RANK(F12,$F$5:$F$13,0),\"\")"
+      }
+    },
+    {
+      "id": {
+        "cell": "DECISION MATRIX!A13",
+        "value": 9,
+        "formula": "='9 TRIALS'!A13"
+      },
+      "raScore": {
+        "cell": "DECISION MATRIX!B13",
+        "value": 0,
+        "formula": "=IF(MAX('9 TRIALS'!$G$5:$G$13)=MIN('9 TRIALS'!$G$5:$G$13),100,100*(MAX('9 TRIALS'!$G$5:$G$13)-'9 TRIALS'!G13)/(MAX('9 TRIALS'!$G$5:$G$13)-MIN('9 TRIALS'!$G$5:$G$13)))"
+      },
+      "mrrScore": {
+        "cell": "DECISION MATRIX!C13",
+        "value": 100,
+        "formula": "=100*'9 TRIALS'!F13/MAX('9 TRIALS'!$F$5:$F$13)"
+      },
+      "powerScore": {
+        "cell": "DECISION MATRIX!D13",
+        "value": 25,
+        "formula": "=100*MIN('9 TRIALS'!$J$5:$J$13)/'9 TRIALS'!J13"
+      },
+      "costScore": {
+        "cell": "DECISION MATRIX!E13",
+        "value": 100,
+        "formula": "=100*MIN('9 TRIALS'!$M$5:$M$13)/'9 TRIALS'!M13"
+      },
+      "weighted": {
+        "cell": "DECISION MATRIX!F13",
+        "value": 58.75,
+        "formula": "=IF(G13=\"FEASIBLE\",B13*$K$5+C13*$K$6+D13*$K$7+E13*$K$8,0)"
+      },
+      "status": {
+        "cell": "DECISION MATRIX!G13",
+        "value": "FEASIBLE",
+        "formula": "='9 TRIALS'!N13"
+      },
+      "rank": {
+        "cell": "DECISION MATRIX!H13",
+        "value": 6,
+        "formula": "=IF(G13=\"FEASIBLE\",RANK(F13,$F$5:$F$13,0),\"\")"
+      }
+    }
+  ],
+  "bestTrial": {
+    "cell": "DECISION MATRIX!K15",
+    "value": 7,
+    "formula": "=IF(COUNTIF(G5:G13,\"FEASIBLE\")=0,\"NONE\",INDEX(A5:A13,MATCH(MAX(F5:F13),F5:F13,0)))"
+  }
+}
