@@ -452,6 +452,41 @@ test('resetting experiment levels asks first', async ({ page }) => {
   await expect(page.locator('#speeds-0')).toHaveValue('100');
 });
 
+// ---- Stage 8: charts ----------------------------------------------------------------------
+
+test('analysis page: map, response plots and trial charts, each with a data table', async ({ page }) => {
+  await openPage(page, 'analysis');
+  await expect(page.locator('#view svg.chart')).toHaveCount(1 + 4 + 7);
+  await expect(page.locator('#view details.data-table')).toHaveCount(12);
+  const ra = page.locator('.chart-card', { has: page.locator('#an-ra-t') });
+  await ra.getByText('Show data table').click();
+  await expect(ra.locator('table')).toBeVisible();
+  await expect(ra.locator('tbody tr').nth(2).locator('td')).toHaveText(['3', '100', '0.20', '1.563', 'Yes']);
+  await expect(page.locator('#an-map-d')).toHaveText(/9 of 9 trials and the live point lie in the feasible region\. Only the roughness limit/);
+  await expect(page.locator('#resp-inputPower-t').locator('xpath=ancestor::div[contains(@class,"chart-card")]')).toContainText('Power limit 7.50 kW is far above every value shown');
+});
+
+test('charts follow the change request (scenario A)', async ({ page }) => {
+  await openPage(page, 'cost');
+  await page.selectOption('#scenario', 'A');
+  await openPage(page, 'analysis');
+  await expect(page.locator('#an-map-d')).toHaveText(/3 of 9 trials lie in the feasible region; the live point does not\./);
+  await expect(page.locator('#an-ra-d')).toHaveText(/Dashed line: Ra limit 0\.80 µm\. Not feasible: trial 2, 3, 5, 6, 8, 9\./);
+  await expect(page.locator('#an-cutTime-t').locator('xpath=ancestor::div[contains(@class,"chart-card")]')).toContainText('Pale bars with a dashed outline are not feasible.');
+});
+
+test('printing from the analysis page keeps element ids unique', async ({ page }) => {
+  await page.evaluate(() => { window.print = () => {}; });
+  await openPage(page, 'analysis');
+  await page.click('#printBtn');
+  const duplicateIds = await page.evaluate(() => {
+    const ids = [...document.querySelectorAll('[id]')].map(e => e.id);
+    return ids.filter((id, i) => ids.indexOf(id) !== i);
+  });
+  expect(duplicateIds).toEqual([]);
+  await expect(page.locator('#report svg.chart')).toHaveCount(3);
+});
+
 // ---- Known defects from docs/AUDIT.md. `test.fail` asserts the bug still exists.
 // (U1 was fixed in Stage 3 and S2 in Stage 4; both are now ordinary regression tests.)
 // When a later stage fixes it, Playwright reports "expected to fail but passed",

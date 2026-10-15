@@ -90,8 +90,8 @@ risk; **L** = polish.
 | U3 | ~~M~~ | **Resolved in Stage 6 (live region updates).** The live simulator only updated on `change` (blur or Enter), not while typing, which weakens cause-and-effect exploration. | app.js:28 |
 | U4 | ~~M~~ | **Resolved in Stages 3 and 7.** *Partly resolved in Stage 3: level, weight, scenario and workbook labels are now linked.* Labels weren't linked to inputs for the speed and feed levels, the weights, the scenario select and the text fields (no `for`/`id`). | app.js:16, 20, 22 |
 | U5 | ~~M~~ | **Resolved in Stage 7 (all text ≥ 5.08:1; axe clean).** Muted text `#71899a` on white is about 3.4:1, below the WCAG AA 4.5:1 for 11–12 px text. | styles.css |
-| U6 | M | Charts have no y-axis title, no limit lines and no data-table alternative. The axis floor `Math.max(…,1)` compresses small series. | app.js:17 |
-| U7 | M | The bar-by-trial-number charts hide the 3×3 factorial structure. A response plot (output vs f, one line per Vc) teaches the effects directly. | app.js:17–18 |
+| U6 | ~~M~~ | **Resolved in Stage 8.** Charts had no y-axis title, no limit lines and no data-table alternative. The axis floor `Math.max(…,1)` compresses small series. | app.js:17 |
+| U7 | ~~M~~ | **Resolved in Stage 8 (response plots, feasibility map).** The bar-by-trial-number charts hid the 3×3 factorial structure. A response plot (output vs f, one line per Vc) teaches the effects directly. | app.js:17–18 |
 | U8 | ~~L~~ | **Resolved in Stage 4 (wording).** The footer said "Offline capable", but there's no service worker. That's only true when opened as a local file. | index.html |
 | U9 | ~~L~~ | **Resolved in Stage 7.** Decorative glyphs in the nav are read aloud by screen readers. | index.html |
 | U10 | ~~L~~ | **Resolved in Stage 4 (progress file).** There was no way to move work between devices except notes in one browser. Add a save/open progress file. | — |

@@ -16,6 +16,10 @@
   const depth = s => (s.initial - s.final) / 2;
   const meanDiameter = s => (s.initial + s.final) / 2;
 
+  // Which limits a result meets (9 TRIALS!N: AND of both). The 1e-9 tolerance is intentional
+  // (docs/MODEL_CHANGELOG.md, E14). Exposed so charts can show which limit binds.
+  const limitsMet = (s, r) => ({ ra: r.ra <= effectiveRaLimit(s) + 1e-9, power: r.inputPower <= s.maxPower + 1e-9 });
+
   // One cutting condition: Vc in m/min, f in mm/rev (9 TRIALS row, SIMULATOR!B8:B18, COST ANALYSIS row).
   function calc(s, v, f) {
     const ap = depth(s);                                   // mm
@@ -37,8 +41,8 @@
       batchCost: cost * batch,                             // RM                            COST ANALYSIS!C
       batchHours: cycle * batch / 3600,                    // h                             COST ANALYSIS!D
       costLife15: costAtLife(15), costLife30: costAtLife(30), costLife60: costAtLife(60),
-      // 9 TRIALS!N. The 1e-9 tolerance is intentional (docs/MODEL_CHANGELOG.md, E14).
-      feasible: ra <= effectiveRaLimit(s) + 1e-9 && inputPower <= s.maxPower + 1e-9,
+      // 9 TRIALS!N: feasible when both limits are met (see limitsMet).
+      feasible: (m => m.ra && m.power)(limitsMet(s, { ra, inputPower })),
     };
   }
 
@@ -63,7 +67,7 @@
     }).sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
   }
 
-  const model = { calc, trials, live, scores, effective, effectiveRaLimit, effectiveBatch, effectiveLife, depth, meanDiameter };
+  const model = { calc, limitsMet, trials, live, scores, effective, effectiveRaLimit, effectiveBatch, effectiveLife, depth, meanDiameter };
   root.MachinaLab = root.MachinaLab || {};
   root.MachinaLab.model = model;
   if (typeof module !== 'undefined' && module.exports) module.exports = model;

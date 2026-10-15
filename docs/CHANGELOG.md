@@ -1,5 +1,63 @@
 # Changelog
 
+## Stage 8 — Visualisation (2026-10-15)
+
+**Changed**
+- New `site/js/charts.js`: pure SVG builders (`niceScale`, `barChart`, `stackedBarChart`, `lineChart`,
+  `feasibilityMap`), with no libraries, so they work offline, under the CSP and in print.
+- The **Data Analysis** page now has three sections:
+  1. **Feasibility map** (Vc against f). The feasible region is shaded by evaluating the model itself on a
+     60 × 40 grid, so no new equations were introduced. It shows the nine trials (●, or ⊗ when not feasible) and the live point (◆).
+     The text below states which limit binds. At the defaults only roughness caps the feed (about 0.20 mm/rev) and power
+     is never reached. Under change request A the band drops to about 0.14 mm/rev.
+  2. **Response plots** of Ra, MRR, input power and cost against feed, with one line per cutting speed. These make the 3 × 3
+     design visible. For Ra the three lines coincide, and the chart says that speed has no effect in this model.
+  3. **Trial by trial**: the six original bar charts are kept as requested in the skill, now improved, plus a **cost breakdown**
+     stacked chart (machine-time cost and tool cost), which makes change request C visible.
+- **Accuracy:**
+  - axes use "nice" numbers chosen from the data, replacing the fixed `Math.max(…,1)` floor that flattened power (0.7 kW) against 1.0;
+  - y-axis titles carry units;
+  - the x-axis title explains the trial numbering;
+  - MRR is shown in cm³/min to match the tables;
+  - limit lines (Ra limit, power limit) are drawn and labelled, or a note explains when a limit is far above the data
+    ("Power limit 7.50 kW … 9 % of the limit");
+  - infeasible trials are drawn as pale bars with a dashed outline, so status is not shown by colour alone.
+- **Accessibility:**
+  - every chart is `role="img"` labelled by its `<title>` and a data-derived `<desc>` sentence;
+  - every chart has a **"Show data table"** (`<details>`), giving 12 tables;
+  - the three speed series also differ by marker shape and dash pattern;
+  - series colours were checked with the dataviz palette validator (#2667a0, #c2611c, #7b4fae all pass);
+  - bar colours reach at least 4.18:1 on white;
+  - on phones, charts scroll sideways inside a focusable region instead of shrinking the text.
+- **Model (Class R):** added `model.limitsMet(s, r)`. `calc()` now derives `feasible` from it, so the map uses the exact same
+  feasibility rule as the trials. The bit-exact test still passes.
+- The printed report uses the improved bar charts. Ids are prefixed per context (`an-` on the page, `rep-` in the report),
+  so they stay unique.
+
+**Unchanged (verified)**
+- All calculated values: the bit-exact model test, the baseline and Excel parity pass.
+
+**Verification**
+- Unit: 169/169, including 23 new chart tests:
+  - nice axes for the real data ranges, plus the edge cases (all zeros, negative, NaN, single value, values below 1)
+    and a sweep over 1e-3 to 1e5;
+  - title, desc, limit line, outline and data table for every value;
+  - a far-away limit described rather than drawn;
+  - escaping;
+  - response-plot coincidence detection and secondary encodings;
+  - map descriptions for BASE, A and a low power limit.
+- Browser: 53/53, and 265/265 over 5 repeats. New tests cover the analysis page structure (12 charts, 12 tables), opening a table and checking its values,
+  charts following change request A, and unique ids when printing from the analysis page.
+  axe still reports 0 violations, now also on the analysis page at 375 px.
+- Visual review of the full analysis page in BASE and scenario A, and of the A4 report PDF. The review caught
+  charts **cropped** in half-width cards (the phone-only minimum width was applying on desktop) and chart text too small. Both were fixed:
+  text is now 15 px in chart units, and the minimum width applies only at 750 px or less.
+
+**Known issues / deferred**
+- Turning schematic (visualisation skill, priority 4) and Vc/f sliders are not yet built.
+- In the Ra response plot the three markers overlap exactly, which is the point being made. The legend and note explain it.
+
+
 ## Stage 7 — Accessibility, Content-Security-Policy and CI hardening (2026-10-15)
 
 **Baseline measured first:** axe-core (WCAG 2.0/2.1/2.2 A and AA rules) flagged only one rule as failing: **colour contrast

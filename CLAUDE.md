@@ -10,15 +10,15 @@ lecturers who set the PBL tasks and mark the exported results.
 
 ## Current state (as of the 2026-10-15 audit — see `docs/AUDIT.md`)
 
-- Stages 1–7 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.1.0 (`APP_VERSION` in app.js).
+- Stages 1–8 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.1.0 (`APP_VERSION` in app.js).
 - App: `site/index.html`, `site/js/params.js` (input schema), `site/js/model.js` (machining model, pure), `site/js/validate.js` (validate/sanitise),
-  `site/js/export.js` (CSV v2, progress files),
+  `site/js/export.js` (CSV v2, progress files), `site/js/charts.js` (SVG chart builders),
   `site/app.js` (state, rendering, events; still compact style), `site/styles.css`. Only `site/` is deployed.
 - Workbook: `reference/MMT15603_Virtual_Machinability_Simulator.xlsx`. Parity run on 2026-10-15
   (`docs/excel-parity-report.md`): machining quantities, cost analysis and decision matrix all match
   the workbook (decision scoring aligned in Stage 2).
 - Tests: `npm test` runs the baseline lock (`baseline-v2.json`), Excel parity and scoring properties
-  plus model, validation and export (148 pass, 0 todo). `npm run test:browser` runs 50 Playwright tests
+  plus model, validation, export and charts (169 pass, 0 todo). `npm run test:browser` runs 53 Playwright tests
   (`smoke.spec.js`, plus `a11y.spec.js` for axe WCAG A/AA, keyboard and CSP), with no known-bug markers left.
   Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
 - CI (`.github/workflows/deploy.yml`) runs both suites on every push and PR. Deployment of `site/` waits for them and
@@ -27,7 +27,7 @@ lecturers who set the PBL tasks and mark the exported results.
   or `on*=` attributes (the CSP blocks them).
 - Python venv `.venv/` (openpyxl) is used by `npm run excel:extract`. It's git-ignored.
 - Storage key `machinalab:mmt15603:v2` = `{schemaVersion: 2, state}`. The old `machinalab-v1` key is still read.
-- Next: Stage 8, visualisation (axis titles, limit lines, response plots, feasibility map, data tables).
+- Next: Stage 9, guided PBL tasks with CLO mapping and self-checks (needs the lecturer's CLO wording).
 
 ## Non-negotiable rules
 
@@ -72,7 +72,7 @@ docs/                    ← AUDIT, CHANGELOG, MODEL_CHANGELOG, decisions/
 ```
 
 Script load order in `index.html`: `params.js → model.js → validate.js → export.js →
-charts.js → app.js` (currently `js/params.js → js/model.js → js/validate.js → js/export.js → app.js`).
+charts.js → app.js` (currently `js/params.js → js/model.js → js/validate.js → js/export.js → js/charts.js → app.js`).
 Re-render after committed input changes with `renderSoon()`, never `render()` directly, so focus survives Tab.
 While typing (`input` events) use `updateSoon()`, which only refreshes `data-region` elements. Any output that
 must change while typing needs a `data-region` wrapper that is always present (including the "blocked" state).

@@ -23,6 +23,12 @@ description: Build and review MachinaLab's charts and interactive visuals (bar c
 - Mark infeasible trials with pattern or outline, not colour alone.
 - Tick labels use the same precision as the tables.
 
+## Implemented (Stage 8)
+
+`site/js/charts.js` provides `niceScale`, `barChart`, `stackedBarChart`, `lineChart` and `feasibilityMap`. Views 1–3 below
+and improved versions of the six bar charts are done. Series colours (validated): `#2667a0`, `#c2611c`, `#7b4fae`.
+Chart ids must be unique per context: `an-` on the page, `rep-` in the printed report.
+
 ## Educationally useful views (priority order)
 
 1. **Response plots**: output vs feed with one line per cutting speed (3×3 design). This shows

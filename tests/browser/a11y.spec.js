@@ -45,7 +45,7 @@ test('no WCAG A/AA violations with errors, warnings and overrides showing', asyn
 
 test('no WCAG A/AA violations at phone width', async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 800 });
-  for (const name of ['dashboard', 'simulator', 'cost']) {
+  for (const name of ['dashboard', 'simulator', 'cost', 'analysis']) {
     await page.click(`#nav button[data-page="${name}"]`);
     expect(await violations(page), name).toEqual([]);
   }
@@ -124,7 +124,9 @@ test('decorative glyphs are hidden from screen readers and nav has a name', asyn
   await expect(page.getByRole('navigation', { name: 'Pages' })).toBeVisible();
   await expect(page.getByRole('button', { name: 'Live Simulator', exact: true })).toBeVisible(); // no "⚙" in the name
   await page.click('#nav button[data-page="analysis"]');
-  await expect(page.getByRole('img', { name: /^Ideal surface roughness, bar chart of the nine trials\. Lowest 0\.391 µm \(trial 1, 4, 7\), highest 1\.563 µm \(trial 3, 6, 9\)\.$/ })).toBeVisible();
+  // Chart name = <title> + <desc> (aria-labelledby): the picture is described in words.
+  await expect(page.getByRole('img', { name: /^Ideal surface roughness Bar chart of the nine trials\. Lowest 0\.391 µm \(trial 1, 4, 7\), highest 1\.563 µm \(trial 3, 6, 9\)\./ })).toBeVisible();
+  await expect(page.getByRole('img', { name: /^Ideal surface roughness Ideal surface roughness against feed\. All 3 cutting-speed lines lie on top of each other/ })).toBeVisible();
 });
 
 test('wide tables can be scrolled with the keyboard on a phone', async ({ page }) => {
