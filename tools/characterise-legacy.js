@@ -10,7 +10,7 @@ const path = require('path');
 const crypto = require('crypto');
 const { loadLegacy } = require('./legacy-loader');
 
-const appPath = process.argv[2] || 'app.js';
+const appPath = process.argv[2] || 'site/app.js';
 const outPath = process.argv[3] || 'tests/fixtures/baseline-v1.json';
 const { trials, scores, live, state, defaults } = loadLegacy(appPath);
 

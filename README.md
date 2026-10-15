@@ -1,6 +1,8 @@
 # MachinaLab — MMT15603 Virtual Machinability Simulator
 
-A browser-based educational CNC turning simulation based on `MMT15603_Virtual_Machinability_Simulator.xlsx`.
+A browser-based educational CNC turning simulation based on `MMT15603_Virtual_Machinability_Simulator.xlsx`
+(kept in `reference/`). The machining calculations reproduce the workbook exactly. See
+`docs/excel-parity-report.md`.
 
 ## Features
 - Interactive turning parameter controls with immediate theoretical results
@@ -11,15 +13,35 @@ A browser-based educational CNC turning simulation based on `MMT15603_Virtual_Ma
 - Responsive design for desktop and mobile
 
 ## Run locally
-Open `index.html` in a browser. No installation or build step is needed. Alternatively, run `python -m http.server 8000` and open http://localhost:8000.
+Open `site/index.html` in a browser. There's no installation or build step. Alternatively, run
+`python -m http.server 8000 -d site` and open http://localhost:8000.
 
 ## Deploy on GitHub Pages
-1. Create a public GitHub repository named `machinalab`.
-2. Upload **the contents** of this folder to the repository root, including `.github/workflows/deploy.yml`.
-3. In **Settings → Pages**, set **Source** to **GitHub Actions**.
-4. Wait for the deployment workflow to complete. Your site will be at `https://YOUR-USERNAME.github.io/machinalab/`.
+1. Create a GitHub repository named `machinalab` and push this repository to its `main` branch.
+2. In **Settings → Pages**, set **Source** to **GitHub Actions**.
+3. Each push to `main` runs `.github/workflows/deploy.yml`. **Only the `site/` folder is published.**
+   Your site will be at `https://YOUR-USERNAME.github.io/machinalab/`.
 
-This application requires no dependencies, server, student accounts, or API keys. Notes persist only in the same browser/device. Export results for submission. GitHub Pages does not collect or grade student submissions.
+GitHub Pages on a free account requires a public repository, so everything in the repository
+(including `docs/` and `reference/`) is visible on GitHub even though it isn't on the website. Never
+commit answer keys or student submissions.
+
+The app needs no server, student accounts or API keys. Notes persist only in the same browser and
+device, so students should export results for submission. GitHub Pages does not collect or grade student submissions.
+
+## For maintainers
+Requires Node.js 20+ and Python 3.
+
+| Command | Purpose |
+|---|---|
+| `npm install` then `npx playwright install chromium` | One-time setup for browser tests |
+| `npm test` | Unit tests: baseline regression lock + Excel parity |
+| `npm run test:browser` | Playwright smoke tests (serves `site/` on port 8765) |
+| `npm run check` | Both of the above |
+| `npm run excel:extract` | Re-read the workbook into `tests/fixtures/excel-golden.json` (needs `.venv` with openpyxl) |
+
+Engineering and change rules are in `CLAUDE.md`, the audit and plan are in `docs/AUDIT.md`, and the
+history is in `docs/CHANGELOG.md`.
 
 ## Models
 - `N = 1000 Vc / (π Dmean)`
@@ -31,4 +53,4 @@ This application requires no dependencies, server, student accounts, or API keys
 - `tcut = 60 L / (f N)` in seconds
 - `Cpart = tcycle/3600 × machine_rate + tcut/60/tool_life × insert_cost/edges`
 
-All outputs are approximate analytical predictions. Model does not represent experimentally validated surface roughness, tool wear, or tool life as a function of cutting speed.
+All outputs are approximate analytical predictions. The model does not represent experimentally validated surface roughness, tool wear, or tool life as a function of cutting speed.

@@ -73,7 +73,7 @@ risk; **L** = polish.
 
 | # | Sev | Finding | Evidence |
 |---|---|---|---|
-| S1 | **H** | **The deploy publishes the repo root** (`path: .`). Once CLAUDE.md, `.claude/`, docs, tests and a future answer key are committed, they become public on Pages. | deploy.yml:22 |
+| S1 | ~~H~~ | **Resolved in Stage 1: deploy is now `site/` only.** ~~The deploy publishes the repo root~~ (`path: .`). Once CLAUDE.md, `.claude/`, docs, tests and a future answer key are committed, they become public on Pages. | deploy.yml:22 |
 | S2 | M | **CSV formula injection.** Student notes starting with `=`, `+`, `-` or `@` are exported raw, and they execute when a lecturer opens the file in Excel. | app.js:26 |
 | S3 | M | **Unescaped interpolation of stored state.** `field()` writes `state[key]` into `value="…"` unescaped, and state comes unsanitised from `localStorage`. All project pages under `<user>.github.io` share an origin, so another page by the same owner can plant markup. The risk is low but real, and it's cheap to fix. | app.js:3, app.js:9 |
 | S4 | M | Stored state isn't schema-checked. Wrong types or array lengths (e.g. `speeds:[1]`) silently break the page. | app.js:3 |

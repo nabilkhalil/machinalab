@@ -17,7 +17,7 @@ const SCORING_TODO = 'AUDIT E12: Excel uses ratio scoring, JS uses min-max. Awai
 const MISSING_TODO = 'AUDIT E13: COST ANALYSIS column not implemented in the web app yet.';
 
 function freshModel() {
-  const legacy = loadLegacy(path.join(ROOT, 'app.js'));
+  const legacy = loadLegacy(path.join(ROOT, 'site', 'app.js'));
   const i = golden.inputs;
   for (const key of ['initial', 'final', 'length', 'nose', 'kc', 'eff', 'maxPower', 'raLimit',
     'rate', 'noncut', 'insert', 'edges', 'life', 'batch', 'liveSpeed', 'liveFeed']) {
@@ -42,7 +42,7 @@ function assertColumn(label, rows, tolerance) {
 }
 
 describe('workbook inputs match web-app defaults', () => {
-  const { defaults } = loadLegacy(path.join(ROOT, 'app.js'));
+  const { defaults } = loadLegacy(path.join(ROOT, 'site', 'app.js'));
   const i = golden.inputs;
   for (const key of ['initial', 'final', 'length', 'nose', 'kc', 'eff', 'maxPower', 'raLimit',
     'rate', 'noncut', 'insert', 'edges', 'life', 'batch', 'liveSpeed', 'liveFeed']) {

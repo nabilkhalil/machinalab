@@ -10,17 +10,18 @@ lecturers who set the PBL tasks and mark the exported results.
 
 ## Current state (as of the 2026-10-15 audit — see `docs/AUDIT.md`)
 
-- App: `index.html`, `app.js` (single minified-style script), `styles.css`. Unchanged since
-  the audit. Not a git repo yet.
+- Stage 1 done (see `docs/CHANGELOG.md`). Git repo on `main`.
+- App: `site/index.html`, `site/app.js` (single minified-style script), `site/styles.css`.
+  Code unchanged since the audit. Only `site/` is deployed.
 - Workbook: `reference/MMT15603_Virtual_Machinability_Simulator.xlsx`. Parity run on 2026-10-15
   (`docs/excel-parity-report.md`): **all machining quantities match exactly**. The **decision matrix does
   not** (E12): Excel scores productivity, power and cost by ratio to best, and JS uses min–max. Awaiting
   lecturer confirmation before changing `scores()`.
-- Tests: `npm test` runs `tests/unit/excel-parity.test.js` (49 pass, 9 `todo` = known
-  discrepancies E12/E13). Never delete a `todo`. Remove it only when the fix lands.
+- Tests: `npm test` runs the baseline lock and Excel parity (62 pass, 9 `todo` = known
+  discrepancies E12/E13). `npm run test:browser` runs 13 Playwright tests. Two of them are `test.fail` for
+  known bugs U1 and S2. Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
 - Python venv `.venv/` (openpyxl) is used by `npm run excel:extract`. It's git-ignored.
-- The deploy workflow still publishes the whole repo root (`path: .`), so CLAUDE.md, `.claude/`,
-  docs, tests and the workbook would be public. Fixing this is Stage 1 (see `docs/AUDIT.md`).
+- Next: Stage 2, workbook alignment (E12 scoring, E13 cost outputs, E15 student prompts).
 
 ## Non-negotiable rules
 
