@@ -74,7 +74,7 @@ risk; **L** = polish.
 | # | Sev | Finding | Evidence |
 |---|---|---|---|
 | S1 | ~~H~~ | **Resolved in Stage 1: deploy is now `site/` only.** ~~The deploy publishes the repo root~~ (`path: .`). Once CLAUDE.md, `.claude/`, docs, tests and a future answer key are committed, they become public on Pages. | deploy.yml:22 |
-| S2 | M | **CSV formula injection.** Student notes starting with `=`, `+`, `-` or `@` are exported raw, and they execute when a lecturer opens the file in Excel. | app.js:26 |
+| S2 | ~~M~~ | **Resolved in Stage 4.** ~~CSV formula injection.~~ Student notes starting with `=`, `+`, `-` or `@` are exported raw, and they execute when a lecturer opens the file in Excel. | app.js:26 |
 | S3 | ~~M~~ | **Resolved in Stage 3 (`esc()` everywhere, sanitised load).** ~~Unescaped interpolation of stored state.~~ `field()` writes `state[key]` into `value="…"` unescaped, and state comes unsanitised from `localStorage`. All project pages under `<user>.github.io` share an origin, so another page by the same owner can plant markup. The risk is low but real, and it's cheap to fix. | app.js:3, app.js:9 |
 | S4 | ~~M~~ | **Resolved in Stage 3 (`sanitise()`).** Stored state wasn't schema-checked. Wrong types or array lengths (e.g. `speeds:[1]`) silently break the page. | app.js:3 |
 | S5 | ~~M~~ | **Resolved in Stage 3.** `localStorage.setItem` wasn't wrapped in try/catch. It throws in some private modes and when the quota is full, which breaks every interaction. | app.js:4 |
@@ -86,15 +86,15 @@ risk; **L** = polish.
 | # | Sev | Finding | Evidence |
 |---|---|---|---|
 | U1 | ~~H~~ | **Resolved in Stage 3 (deferred render + focus restore).** ~~Focus is lost when tabbing between fields.~~ The `change` event fires on blur, `render()` replaces the whole view, and the field just tabbed into is destroyed. Students filling in the form will hit this constantly. | app.js:25, app.js:28 |
-| U2 | **H** | **"Print report" prints only the experiments table**, without the student's notes, decision matrix or charts. That isn't a report. | app.js:27 |
+| U2 | ~~H~~ | **Resolved in Stage 4 (full A4 report).** ~~"Print report" prints only the experiments table~~, without the student's notes, decision matrix or charts. That isn't a report. | app.js:27 |
 | U3 | M | The live simulator only updates on `change` (blur or Enter), not while typing, which weakens cause-and-effect exploration. | app.js:28 |
 | U4 | M | *Partly resolved in Stage 3: level, weight, scenario and workbook labels are now linked.* Labels weren't linked to inputs for the speed and feed levels, the weights, the scenario select and the text fields (no `for`/`id`). | app.js:16, 20, 22 |
 | U5 | M | Muted text `#71899a` on white is about 3.4:1, below the WCAG AA 4.5:1 for 11–12 px text. | styles.css |
 | U6 | M | Charts have no y-axis title, no limit lines and no data-table alternative. The axis floor `Math.max(…,1)` compresses small series. | app.js:17 |
 | U7 | M | The bar-by-trial-number charts hide the 3×3 factorial structure. A response plot (output vs f, one line per Vc) teaches the effects directly. | app.js:17–18 |
-| U8 | L | The footer says "Offline capable", but there's no service worker. That's only true when opened as a local file. | index.html |
+| U8 | ~~L~~ | **Resolved in Stage 4 (wording).** The footer said "Offline capable", but there's no service worker. That's only true when opened as a local file. | index.html |
 | U9 | L | Decorative glyphs in the nav are read aloud by screen readers. | index.html |
-| U10 | L | There's no way to move work between devices except notes in one browser. Add a save/open progress file. | — |
+| U10 | ~~L~~ | **Resolved in Stage 4 (progress file).** There was no way to move work between devices except notes in one browser. Add a save/open progress file. | — |
 
 ### Maintainability and testing
 

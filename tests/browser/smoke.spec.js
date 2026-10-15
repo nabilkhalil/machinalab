@@ -188,21 +188,22 @@ test('student notes persist after reload', async ({ page }) => {
   await expect(page.locator('[data-text="observations"]')).toHaveValue('Ra rises with feed.');
 });
 
-test('CSV export contains trials and notes', async ({ page }) => {
+test('CSV export: named file, BOM, metadata, units, values and notes', async ({ page }) => {
   await openPage(page, 'pbl');
+  await page.fill('[data-text="student"]', 'Nur Aina');
   await page.fill('[data-text="group"]', 'G1');
+  await page.fill('[data-text="recommendation"]', 'Trial 7, because it is feasible and scores highest.');
   const [download] = await Promise.all([page.waitForEvent('download'), page.click('#exportBtn')]);
-  expect(download.suggestedFilename()).toBe('MMT15603_MachinaLab_Results.csv');
+  expect(download.suggestedFilename()).toMatch(/^MMT15603_G1_Nur-Aina_\d{8}-\d{4}\.csv$/);
   const csv = fs.readFileSync(await download.path(), 'utf8');
-  expect(csv.charCodeAt(0)).toBe(0xfeff); // BOM so Excel reads µ correctly
+  expect(csv.charCodeAt(0)).toBe(0xfeff); // BOM so Excel reads µ and ³ correctly
   const lines = csv.slice(1).split('\r\n');
-  expect(lines[0]).toContain('"Trial","Vc_m_min","Feed_mm_rev"');
-  expect(lines[0]).toContain('"Tool_cost_RM_part","Batch_cycle_hours","Cost_T15_RM_part"');
-  // header + 9 trials + blank + student/group/scenario + 9 workbook prompts
-  expect(lines).toHaveLength(1 + 9 + 1 + 3 + 9);
-  expect(lines[5]).toMatch(/^"5","150","0.15","0.5","964\.57541/);
+  expect(lines[0]).toBe('"Format","MachinaLab results"');
+  expect(lines[1]).toBe('"Format version","2"');
   expect(csv).toContain('"Group / members","G1"');
-  expect(csv).toContain('"Effect of feed on Ra",""');
+  expect(csv).toContain('"Trial","Vc (m/min)","f (mm/rev)","ap (mm)","N (rev/min)","MRR (mm³/min)","Ra (µm)"');
+  expect(csv).toMatch(/\r\n"5","150","0.15","0.5","964\.57541/);
+  expect(csv).toContain('"Recommended trial and reasons","Trial 7, because it is feasible and scores highest."');
 });
 
 test('decision matrix ranks trials as the workbook does', async ({ page }) => {
@@ -243,10 +244,94 @@ test('notes saved before Stage 2 carry over to the new prompts', async ({ page }
   await expect(page.getByLabel('Problem statement')).toHaveValue('');
 });
 
-test('print layout hides navigation', async ({ page }) => {
+test('Print report prints a full report, not the current page', async ({ page }) => {
+  await page.evaluate(() => { window.print = () => { window.__printed = (window.__printed || 0) + 1; }; });
+  await openPage(page, 'pbl');
+  await page.fill('[data-text="student"]', 'Nur Aina');
+  await page.fill('[data-text="feedRa"]', 'Ra rises with the square of feed.');
+  await page.click('#printBtn');
+  expect(await page.evaluate(() => window.__printed)).toBe(1);
   await page.emulateMedia({ media: 'print' });
-  await expect(page.locator('.sidebar')).toBeHidden();
-  await expect(page.locator('#view')).toBeVisible();
+  for (const hidden of ['.sidebar', '.topbar', '#view']) await expect(page.locator(hidden)).toBeHidden();
+  const report = page.locator('#report');
+  await expect(report).toBeVisible();
+  await expect(report).toContainText('Nur Aina');
+  await expect(report).toContainText('Best feasible trial by weighted score: trial 7');
+  await expect(report.locator('h2')).toHaveText(['1. Inputs and assumptions', '2. Nine-trial results', '3. Key responses',
+    '4. Production cost and tool-life sensitivity', '5. Decision matrix', '6. Student analysis']);
+  await expect(report.locator('svg.chart')).toHaveCount(3);
+  await expect(report).toContainText('Ra rises with the square of feed.');
+  await expect(report).toContainText('(not answered)');
+  await expect(report).toContainText('model predictions');
+  // The report reuses page builders; ids must stay unique even with the Cost page open.
+  await page.emulateMedia({ media: 'screen' });
+  await openPage(page, 'cost');
+  await page.click('#printBtn');
+  const duplicateIds = await page.evaluate(() => {
+    const ids = [...document.querySelectorAll('[id]')].map(e => e.id);
+    return ids.filter((id, i) => ids.indexOf(id) !== i);
+  });
+  expect(duplicateIds).toEqual([]);
+  await expect(report).toBeHidden();
+});
+
+test('report from invalid inputs explains why results are missing', async ({ page }) => {
+  await page.evaluate(() => { window.print = () => {}; });
+  await openPage(page, 'simulator');
+  await setNumber(page, '#final', 60);
+  await page.click('#printBtn');
+  await page.emulateMedia({ media: 'print' });
+  await expect(page.locator('#report')).toContainText('Results not included');
+  await expect(page.locator('#report')).toContainText('Final diameter must be smaller');
+  await expect(page.locator('#report')).not.toContainText('FEASIBLE');
+});
+
+test('progress file: save, then open on a "different computer"', async ({ page, context }) => {
+  await openPage(page, 'simulator');
+  await setNumber(page, '#liveSpeed', 220);
+  await openPage(page, 'pbl');
+  await page.fill('[data-text="student"]', 'Nur Aina');
+  await page.fill('[data-text="reflection"]', 'Validate Ra with a profilometer.');
+  const [download] = await Promise.all([page.waitForEvent('download'), page.click('#saveProgress')]);
+  expect(download.suggestedFilename()).toMatch(/^MMT15603_group_Nur-Aina_\d{8}-\d{4}\.json$/);
+  const file = await download.path();
+  await expect(page.locator('.progress-msg')).toContainText('Progress file saved');
+
+  // Fresh browser profile = another computer.
+  const other = await context.browser().newContext();
+  const page2 = await other.newPage();
+  await page2.goto('index.html');
+  await page2.click('#nav button[data-page="pbl"]');
+  await expect(page2.locator('[data-text="student"]')).toHaveValue('');
+  page2.once('dialog', d => d.accept());
+  await page2.setInputFiles('#openProgress', file);
+  await expect(page2.locator('.progress-msg')).toContainText('Progress file opened');
+  await expect(page2.locator('[data-text="student"]')).toHaveValue('Nur Aina');
+  await expect(page2.locator('[data-text="reflection"]')).toHaveValue('Validate Ra with a profilometer.');
+  await page2.click('#nav button[data-page="simulator"]');
+  await expect(page2.locator('#liveSpeed')).toHaveValue('220');
+  await page2.reload(); // and it is now saved in that browser too
+  await page2.click('#nav button[data-page="pbl"]');
+  await expect(page2.locator('[data-text="student"]')).toHaveValue('Nur Aina');
+  await other.close();
+});
+
+test('opening a file that is not a progress file is refused with a clear message', async ({ page }) => {
+  await openPage(page, 'pbl');
+  await page.fill('[data-text="student"]', 'Keep me');
+  await page.setInputFiles('#openProgress', { name: 'notes.json', mimeType: 'application/json', buffer: Buffer.from('{"hello":1}') });
+  await expect(page.locator('.progress-msg')).toContainText('not a MachinaLab progress file');
+  await expect(page.locator('[data-text="student"]')).toHaveValue('Keep me');
+});
+
+test('declining the confirmation keeps current work', async ({ page }) => {
+  await openPage(page, 'pbl');
+  await page.fill('[data-text="student"]', 'Current');
+  const other = JSON.stringify({ format: 'machinalab-state', schemaVersion: 2, state: { student: 'Other' } });
+  page.once('dialog', d => d.dismiss());
+  await page.setInputFiles('#openProgress', { name: 'p.json', mimeType: 'application/json', buffer: Buffer.from(other) });
+  await page.waitForTimeout(200);
+  await expect(page.locator('[data-text="student"]')).toHaveValue('Current');
 });
 
 test('phone width (375 px) has no horizontal page scroll', async ({ page }) => {
@@ -268,7 +353,7 @@ test('opens directly from file:// (double-click)', async ({ page }) => {
 });
 
 // ---- Known defects from docs/AUDIT.md. `test.fail` asserts the bug still exists.
-// (U1 was fixed in Stage 3 and is now an ordinary regression test.)
+// (U1 was fixed in Stage 3 and S2 in Stage 4; both are now ordinary regression tests.)
 // When a later stage fixes it, Playwright reports "expected to fail but passed",
 // prompting removal of the marker so the test becomes a normal regression test.
 
@@ -297,8 +382,7 @@ test('U1 (fixed in Stage 3): keyboard focus survives tabbing between inputs', as
   await expect(page.locator('#weights-1')).toBeFocused();
 });
 
-test('S2: CSV neutralises spreadsheet formulas in student text', async ({ page }) => {
-  test.fail(true, 'AUDIT S2: notes are exported raw (Stage 4).');
+test('S2 (fixed in Stage 4): CSV neutralises spreadsheet formulas in student text', async ({ page }) => {
   await openPage(page, 'pbl');
   await page.fill('[data-text="observations"]', '=HYPERLINK("http://example.com","x")');
   const [download] = await Promise.all([page.waitForEvent('download'), page.click('#exportBtn')]);

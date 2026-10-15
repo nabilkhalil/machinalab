@@ -7,11 +7,17 @@ const path = require('path');
 
 function loadLegacy(appPath, storedState = null) {
   const siteDir = path.dirname(appPath);
-  const deps = ['params.js', 'validate.js'].map(f => path.join(siteDir, 'js', f)).filter(fs.existsSync);
+  const deps = ['params.js', 'validate.js', 'export.js'].map(f => path.join(siteDir, 'js', f)).filter(fs.existsSync);
   const source = fs.readFileSync(appPath, 'utf8').replace(/render\(\);\s*$/, '');
   const stubElement = { hidden: false, textContent: '', innerHTML: '', classList: { toggle() {} } };
   const sandbox = {
-    localStorage: { getItem: () => storedState, setItem() {} },
+    // storedState: a string (saved under the pre-Stage-4 key) or a {key: string} map.
+    localStorage: {
+      getItem: key => (storedState && typeof storedState === 'object') ? (storedState[key] ?? null)
+        : (key === 'machinalab-v1' ? storedState : null),
+      setItem() {},
+    },
+    addEventListener() {},
     document: { querySelector: () => stubElement, querySelectorAll: () => [], addEventListener() {} },
     window: {},
     console, Math, Number, JSON, String,

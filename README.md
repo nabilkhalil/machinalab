@@ -7,7 +7,8 @@ A browser-based educational CNC turning simulation based on `MMT15603_Virtual_Ma
 ## Features
 - Interactive turning parameter controls with immediate theoretical results
 - Nine-trial 3×3 factorial design
-- Six charts, CSV export, printing, and browser-local student notes
+- Six charts, CSV export (Excel-safe, with units), a printable A4 report, and the 9-section student workbook
+- Save / open a progress file to move work between computers
 - Cost estimation, feasibility checks, weighted decision matrix
 - Industrial change requests A, B, and C
 - Responsive design for desktop and mobile
@@ -27,7 +28,7 @@ GitHub Pages on a free account requires a public repository, so everything in th
 commit answer keys or student submissions.
 
 The app needs no server, student accounts or API keys. Notes persist only in the same browser and
-device, so students should export results for submission. GitHub Pages does not collect or grade student submissions.
+device. Students can save a progress file to continue elsewhere, and export a CSV or print the report for submission. GitHub Pages does not collect or grade student submissions.
 
 ## For maintainers
 Requires Node.js 20+. Python 3 is only needed to re-extract values from the workbook.

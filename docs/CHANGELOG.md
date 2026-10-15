@@ -1,5 +1,73 @@
 # Changelog
 
+## Stage 4 — Export, print report and progress files (2026-10-15)
+
+**Changed**
+- New `site/js/export.js` (pure, Node-tested): `buildCsv`, `exportFilename`, `buildProgressFile`,
+  `parseProgressFile`.
+- **S2: CSV formula injection fixed.** Any text cell starting with `= + - @`, tab or CR gets a leading `'`.
+  This covers student name, group and all answers. Numbers are written as numbers.
+- **CSV format version 2** (it replaces the unversioned layout, so markers' spreadsheets need updating). Its contents are:
+  1. a metadata block: format, version, app version, course, export time with UTC offset, student, group,
+     scenario with description, effective limits, and a "model predictions" note;
+  2. every input as Parameter / Symbol / Value / Unit;
+  3. the trial table with **units in the headers**, Feasible as Yes/No, weighted score and rank;
+  4. the live simulator point;
+  5. all 9 student answers.
+
+  Numbers are unformatted at full precision.
+  The filename is `MMT15603_<group>_<student>_<YYYYMMDD-HHmm>.csv`, sanitised. With invalid inputs, the file contains inputs,
+  problems and answers but no results. With invalid weights, scores and ranks are omitted and a note explains why.
+- **U2: Print report is now a real report.** It's built on demand into a hidden `#report` section, and is also built when
+  the student prints with Ctrl+P. Sections:
+  - header (course, student, group, date, change request);
+  - 1. inputs;
+  - 2. nine-trial results with the feasible count and best trial;
+  - 3. three key charts;
+  - 4. cost and tool-life sensitivity;
+  - 5. decision matrix;
+  - 6. all student answers, with "(not answered)" marking blanks;
+  - a disclaimer footer.
+
+  It uses an A4 print stylesheet. With invalid inputs, the report lists the problems instead of results.
+- **U10: Save / open progress file** on the PBL Workbook page. Students can move work between computers without accounts. The file
+  (`format: machinalab-state`, `schemaVersion: 2`) is size-limited to 200 KB and fully sanitised on open. Opening asks
+  for confirmation before replacing current work, and wrong or corrupted files give a clear message.
+- **Storage:** the new namespaced key is `machinalab:mmt15603:v2`, holding `{schemaVersion: 2, state}`. Work saved under the old
+  `machinalab-v1` key is still read automatically.
+- **Units are no longer uppercased in table headers.** The old style turned `µm` into "ΜM" and `mm/rev` into "MM/REV".
+- Chart legends read "Unit: …". The "hover" hint is screen-only.
+- Sidebar now says "Version 1.1 · Runs in your browser" (U8: there's no offline caching, so "Offline capable" was removed).
+
+**Unchanged (verified)**
+- All calculated values: the baseline v2 and Excel parity tests pass.
+
+**Verification**
+- Unit: 137/137, including 20 new export tests:
+  - injection for `=1+1`, `@SUM(A1)`, `-2+3`, `+1`, tab, CR and `=HYPERLINK(…)`;
+  - a "no text cell starts with a trigger" sweep;
+  - quotes, commas and line breaks surviving a round trip;
+  - a metadata snapshot;
+  - full-precision values checked against workbook cells;
+  - Yes/No, score and rank, with infeasible trials unranked;
+  - invalid weights and invalid inputs;
+  - CRLF line endings;
+  - filename sanitising (including `../`);
+  - a progress-file round trip, plus sanitising and rejection of malformed, wrong-format, newer and oversize files.
+- Browser: 28/28, and 140/140 over 5 repeats. **S2 is now a normal passing test.** New tests:
+  - the print report (sections, charts, answers, hidden on screen, no duplicate ids);
+  - the report with invalid inputs;
+  - progress save, then open in a fresh browser profile ("another computer");
+  - refusing a non-progress file;
+  - declining the confirmation;
+  - the CSV filename, BOM and format.
+- Visual check: generated the A4 PDF with Chromium and reviewed every page. That review found and fixed the uppercase-unit bug, a grey
+  background on the last page, hover text on paper, and a duplicate `id="costAnalysis"` when the report was built next to the Cost page.
+
+**Known issues / deferred**
+- Not yet checked with "Save as PDF" in Edge or Firefox; the Chromium PDF is fine.
+- Contrast, nav glyphs, CSP and the remaining inline styles are planned for Stage 7. Chart quality (axis titles, limit lines) is planned for Stage 8.
+
 ## Stage 3 — Input validation, safe storage and keyboard focus (2026-10-15)
 
 **Changed**
