@@ -10,16 +10,21 @@ lecturers who set the PBL tasks and mark the exported results.
 
 ## Current state (as of the 2026-10-15 audit — see `docs/AUDIT.md`)
 
-- Stages 1–8 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.1.0 (`APP_VERSION` in app.js).
+- Stages 1–9 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.2.0 (`APP_VERSION` in app.js; bump the `?v=` query on CSS/JS links in index.html with it).
 - App: `site/index.html`, `site/js/params.js` (input schema), `site/js/model.js` (machining model, pure), `site/js/validate.js` (validate/sanitise),
   `site/js/export.js` (CSV v2, progress files), `site/js/charts.js` (SVG chart builders),
+  `site/js/turning.js` (pure model-result → 3D drawing/motion mapping and SVG schematic), `site/js/lathe3d.js` (Three.js scene,
+  browser only), `site/js/vendor/three.min.js` (Three.js r159, lazy-loaded, hash-pinned),
   `site/app.js` (state, rendering, events; still compact style), `site/styles.css`. Only `site/` is deployed.
+- Upgrade to MachinaLab 2 in progress: see `docs/DEVELOPMENT_PLAN.md` (stages 9–14). Stage 9 (3D turning view) released as 1.2.0;
+  work reaches `main` only by pull request after CI passes.
 - Workbook: `reference/MMT15603_Virtual_Machinability_Simulator.xlsx`. Parity run on 2026-10-15
   (`docs/excel-parity-report.md`): machining quantities, cost analysis and decision matrix all match
   the workbook (decision scoring aligned in Stage 2).
 - Tests: `npm test` runs the baseline lock (`baseline-v2.json`), Excel parity and scoring properties
-  plus model, validation, export and charts (169 pass, 0 todo). `npm run test:browser` runs 53 Playwright tests
-  (`smoke.spec.js`, plus `a11y.spec.js` for axe WCAG A/AA, keyboard and CSP), with no known-bug markers left.
+  plus model, validation, export, charts and the turning mapping (194 pass, 0 todo). `npm run test:browser` runs 70 Playwright tests
+  (`smoke.spec.js`, `lathe.spec.js` for the 3D view, plus `a11y.spec.js` for axe WCAG A/AA, keyboard and CSP), with no known-bug
+  markers left. Chromium runs with SwiftShader (software WebGL) so the 3D view is tested on CI too.
   Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
 - CI (`.github/workflows/deploy.yml`) runs both suites on every push and PR. Deployment of `site/` waits for them and
   runs only on `main`. Actions are pinned to commit SHAs. Update one at a time, and verify the SHA with `git ls-remote`.
@@ -27,7 +32,9 @@ lecturers who set the PBL tasks and mark the exported results.
   or `on*=` attributes (the CSP blocks them).
 - Python venv `.venv/` (openpyxl) is used by `npm run excel:extract`. It's git-ignored.
 - Storage key `machinalab:mmt15603:v2` = `{schemaVersion: 2, state}`. The old `machinalab-v1` key is still read.
-- Next: Stage 9, guided PBL tasks with CLO mapping and self-checks (needs the lecturer's CLO wording).
+  Display preferences (no personal data) use `machinalab:mmt15603:prefs:v1` = `{reduceMotion: boolean, showArrows: boolean}`.
+- Next: stage 10 (readability refactor of `app.js`/`index.html`/`styles.css`, no behaviour change), then the dashboard redesign.
+  Guided PBL challenges (stage 12) still need the lecturer's CLO wording.
 
 ## Non-negotiable rules
 
@@ -38,7 +45,8 @@ lecturers who set the PBL tasks and mark the exported results.
    numerically identical (relative difference ≤ 1e-12) to the baseline.
 2. **No framework replacement without justification.** The app stays vanilla HTML/CSS/JS with
    no build step and no runtime dependencies. Proposals to add a framework or a bundler need a
-   written trade-off in `docs/decisions/` and the user's approval first.
+   written trade-off in `docs/decisions/` and the user's approval first. The one approved exception is
+   Three.js r159 for the 3D turning view (`docs/decisions/0001-three-js-3d-turning-view.md`): vendored, never from a CDN.
 3. **Must work from `file://` and from GitHub Pages.** Do not use ES modules (`type="module"`), `fetch()` of
    local files, or absolute paths (`/styles.css`), because these break double-click opening or a project-pages sub-path.
    Use classic `<script>` tags in dependency order. Shared code goes in a global
@@ -72,7 +80,8 @@ docs/                    ← AUDIT, CHANGELOG, MODEL_CHANGELOG, decisions/
 ```
 
 Script load order in `index.html`: `params.js → model.js → validate.js → export.js →
-charts.js → app.js` (currently `js/params.js → js/model.js → js/validate.js → js/export.js → js/charts.js → app.js`).
+charts.js → turning.js → lathe3d.js → app.js` (currently `js/params.js → js/model.js → js/validate.js → js/export.js →
+js/charts.js → js/turning.js → js/lathe3d.js → app.js`). `js/vendor/three.min.js` is not in this list: `app.js` adds it on demand.
 Re-render after committed input changes with `renderSoon()`, never `render()` directly, so focus survives Tab.
 While typing (`input` events) use `updateSoon()`, which only refreshes `data-region` elements. Any output that
 must change while typing needs a `data-region` wrapper that is always present (including the "blocked" state).
