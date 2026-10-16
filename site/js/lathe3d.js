@@ -135,6 +135,110 @@
     });
     let chipClock = 0;
 
+    // ---- Direction arrows: cutting speed, feed, depth of cut, cutting force ----------------
+    // They follow the tool. Directions are physical; arrow lengths are not to scale. Labels carry
+    // the predicted values, so the information never depends on colour alone.
+    const ARROW_COLOURS = root.MachinaLab.turning.ARROW_COLOURS;
+    const UP = new THREE.Vector3(0, 1, 0);
+    // Solid arrow (shaft + cone) along +y from its origin, turned to `dir`.
+    function makeArrow(colour, length, shaft, headLength, headRadius) {
+      const material = new THREE.MeshBasicMaterial({ color: colour });
+      const group = new THREE.Group();
+      const body = new THREE.Mesh(new THREE.CylinderGeometry(shaft, shaft, length - headLength, 12), material);
+      body.position.y = (length - headLength) / 2;
+      const head = new THREE.Mesh(new THREE.ConeGeometry(headRadius, headLength, 16), material);
+      head.position.y = length - headLength / 2;
+      group.add(body, head);
+      return group;
+    }
+    function pointArrow(arrow, origin, dir) {
+      arrow.position.copy(origin);
+      arrow.quaternion.setFromUnitVectors(UP, dir.clone().normalize());
+    }
+    // Text label drawn on a canvas, shown as a sprite that always faces the camera.
+    function makeLabel(colour) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 112;
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false }));
+      sprite.renderOrder = 10;
+      sprite.scale.set(1.9, 1.9 * 112 / 512, 1);
+      let current = '';
+      sprite.userData.setText = text => {
+        if (text === current) return;
+        current = text;
+        const g = c.getContext('2d');
+        g.clearRect(0, 0, c.width, c.height);
+        g.font = '700 46px system-ui, "Segoe UI", sans-serif';
+        const w = Math.min(c.width - 8, g.measureText(text).width + 36);
+        g.fillStyle = 'rgba(255,255,255,0.92)';
+        g.strokeStyle = colour;
+        g.lineWidth = 5;
+        g.beginPath();
+        if (g.roundRect) g.roundRect((c.width - w) / 2, 10, w, 92, 18);
+        else g.rect((c.width - w) / 2, 10, w, 92); // older browsers
+        g.fill();
+        g.stroke();
+        g.fillStyle = colour;
+        g.textAlign = 'center';
+        g.textBaseline = 'middle';
+        g.fillText(text, c.width / 2, 58, c.width - 30);
+        tex.needsUpdate = true;
+      };
+      return sprite;
+    }
+    const arrows = new THREE.Group();
+    scene.add(arrows);
+    const vcArrow = makeArrow(ARROW_COLOURS.vc, 1.1, 0.045, 0.24, 0.11);
+    const feedArrow = makeArrow(ARROW_COLOURS.feed, 1.3, 0.045, 0.24, 0.11);
+    const fcArrow = makeArrow(ARROW_COLOURS.fc, 0.95, 0.06, 0.26, 0.14);
+    // Depth of cut: a dimension from the finished radius to the uncut radius, with fixed-size
+    // heads at both ends and short extension ticks, so it stays readable however thin the layer.
+    const apMat = new THREE.MeshBasicMaterial({ color: ARROW_COLOURS.ap });
+    const apDim = new THREE.Group();
+    const apShaft = new THREE.Mesh(new THREE.CylinderGeometry(0.016, 0.016, 1, 8), apMat);
+    const apHeadTop = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.05, 12), apMat);
+    const apHeadBottom = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.05, 12), apMat);
+    apHeadBottom.rotation.z = Math.PI;
+    const apTickTop = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.012, 0.012), apMat);
+    const apTickBottom = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.012, 0.012), apMat);
+    apDim.add(apShaft, apHeadTop, apHeadBottom, apTickTop, apTickBottom);
+    const labels = { vc: makeLabel(ARROW_COLOURS.vc), feed: makeLabel(ARROW_COLOURS.feed), ap: makeLabel(ARROW_COLOURS.ap), fc: makeLabel(ARROW_COLOURS.fc) };
+    arrows.add(vcArrow, feedArrow, fcArrow, apDim, ...Object.values(labels));
+
+    function setArrowLabels() {
+      for (const d of root.MachinaLab.turning.directions(m)) labels[d.key].userData.setText(d.short);
+    }
+
+    // Place every arrow relative to the tool tip at (toolX, 0, rf).
+    function placeArrows(toolX) {
+      const rf = m.radiusFinal;
+      const v = (x, y, z) => new THREE.Vector3(x, y, z);
+      // Cutting speed: the bar surface moves down past the tool, drawn on the front of the bar
+      // just ahead of the tool, where the surface velocity is tangent and points down.
+      const vcX = Math.max(toolX - 0.5, 0.25);
+      pointArrow(vcArrow, v(vcX, 0.55, 1.06), v(0, -1, 0));
+      labels.vc.position.set(vcX - 0.2, 0.85, 1.15);
+      // Cutting force on the tool: the main (tangential) force pushes the tool down, along Vc.
+      pointArrow(fcArrow, v(toolX + 0.08, 1.08, rf + 0.22), v(0, -1, 0));
+      labels.fc.position.set(toolX + 0.85, 1.2, rf + 0.25);
+      // Feed: the tool moves along the bar towards the chuck (−x), drawn beside the tool holder.
+      pointArrow(feedArrow, v(toolX + 1.55, 0.22, rf + 1.0), v(-1, 0, 0));
+      labels.feed.position.set(toolX + 1.25, 0.6, rf + 1.0);
+      // Depth of cut: radial, on top of the bar just behind the shoulder, from rf up to the uncut radius.
+      const x = Math.min(toolX + 0.3, m.length - 0.05);
+      apDim.position.set(x, 0, 0);
+      apShaft.scale.y = Math.max(1 - rf - 0.1, 0.001);
+      apShaft.position.y = (1 + rf) / 2;
+      apHeadTop.position.y = 1 - 0.025;
+      apHeadBottom.position.y = rf + 0.025;
+      apTickTop.position.set(-0.1, 1, 0);       // level with the uncut surface, reaching back to the shoulder
+      apTickBottom.position.set(0.05, rf, 0);   // on the finished surface
+      labels.ap.position.set(x + 0.65, 1.42, 0);
+    }
+
     // ---- State ---------------------------------------------------------------------------
     let m = null;            // current motion description (turning.js)
     let progress = 0;        // 0 = tool at the tailstock end, 1 = pass complete
@@ -174,6 +278,7 @@
       markTex.repeat.set(1, rings);
       markTex.offset.set(0, -rings);
       tool.position.set(toolX, 0, m.radiusFinal);
+      if (arrows.visible) placeArrows(toolX);
     }
 
     function emitChip() {
@@ -186,7 +291,9 @@
     }
 
     function step(dt) {
-      angle -= 2 * Math.PI * m.revPerSecond * dt; // front of the bar moves down onto the tool
+      // Positive rotation about x carries the front of the bar (+z) downwards (−y), onto the
+      // top (rake) face of the tool, as on a lathe. This is the direction the Vc arrow shows.
+      angle += 2 * Math.PI * m.revPerSecond * dt;
       spindle.rotation.x = angle;
       if (hold > 0) {
         hold -= dt;
@@ -314,6 +421,7 @@
       bed.scale.x = m.length + 4.5;
       bed.position.x = m.length / 2 - 0.2;
       tailstock.position.x = m.length;
+      setArrowLabels();
       refresh();
     }
 
@@ -323,6 +431,7 @@
       play() { playing = true; start(); },
       pause() { playing = false; },
       isPlaying: () => playing,
+      setArrowsVisible(on) { arrows.visible = on; refresh(); },
       // Show a half-finished cut, used for the still picture in reduced-motion mode.
       showMidPass() { progress = 0.5; hold = 0; refresh(); },
       restart() { progress = 0; hold = 0; chips.forEach(c => { c.life = 0; c.mesh.visible = false; }); refresh(); },

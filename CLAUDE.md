@@ -22,7 +22,7 @@ lecturers who set the PBL tasks and mark the exported results.
   (`docs/excel-parity-report.md`): machining quantities, cost analysis and decision matrix all match
   the workbook (decision scoring aligned in Stage 2).
 - Tests: `npm test` runs the baseline lock (`baseline-v2.json`), Excel parity and scoring properties
-  plus model, validation, export, charts and the turning mapping (190 pass, 0 todo). `npm run test:browser` runs 69 Playwright tests
+  plus model, validation, export, charts and the turning mapping (194 pass, 0 todo). `npm run test:browser` runs 70 Playwright tests
   (`smoke.spec.js`, `lathe.spec.js` for the 3D view, plus `a11y.spec.js` for axe WCAG A/AA, keyboard and CSP), with no known-bug
   markers left. Chromium runs with SwiftShader (software WebGL) so the 3D view is tested on CI too.
   Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
@@ -32,7 +32,7 @@ lecturers who set the PBL tasks and mark the exported results.
   or `on*=` attributes (the CSP blocks them).
 - Python venv `.venv/` (openpyxl) is used by `npm run excel:extract`. It's git-ignored.
 - Storage key `machinalab:mmt15603:v2` = `{schemaVersion: 2, state}`. The old `machinalab-v1` key is still read.
-  Display preferences (no personal data) use `machinalab:mmt15603:prefs:v1` = `{reduceMotion: boolean}`.
+  Display preferences (no personal data) use `machinalab:mmt15603:prefs:v1` = `{reduceMotion: boolean, showArrows: boolean}`.
 - Next: stage 10 (readability refactor of `app.js`/`index.html`/`styles.css`, no behaviour change), then the dashboard redesign.
   Guided PBL challenges (stage 12) still need the lecturer's CLO wording.
 

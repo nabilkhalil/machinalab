@@ -57,7 +57,7 @@
       // Predictions and inputs, copied unchanged for the readout and the schematic labels.
       prediction: {
         v: result.v, f: result.f, ap: result.ap, rpm: result.rpm, cutTime: result.cutTime,
-        ra: result.ra, inputPower: result.inputPower, feasible: result.feasible,
+        ra: result.ra, force: result.force, inputPower: result.inputPower, feasible: result.feasible,
         initial: state.initial, final: state.final, length: state.length,
       },
       // Illustration settings.
@@ -101,6 +101,24 @@
     if (m.flags.depthReduced) out.push('The depth of cut is drawn shallower than true scale so that the finished bar stays visible.');
     if (m.flags.lengthAdjusted) out.push('The bar length is drawn out of proportion to its diameter so that it fits the view.');
     return out;
+  }
+
+  // Direction arrows in the 3D view. Colours pass 4.5:1 on white (they double as label text colours).
+  // `short` is the label on the arrow; `text` is the legend sentence under the view. Values are
+  // model predictions or inputs; only the directions are drawn, not the magnitudes.
+  const ARROW_COLOURS = { vc: '#2667a0', feed: '#7b4fae', ap: '#0b7f8c', fc: '#a3352a' };
+  function directions(m) {
+    const p = m.prediction;
+    return [
+      { key: 'vc', colour: ARROW_COLOURS.vc, name: 'Cutting speed, Vc', short: `Vc ${plain(p.v)} m/min`,
+        text: `The bar surface moves down past the tool tip at ${plain(p.v)} m/min (tangent to the bar).` },
+      { key: 'feed', colour: ARROW_COLOURS.feed, name: 'Feed, f', short: `f ${plain(p.f)} mm/rev`,
+        text: `The tool moves along the bar towards the chuck by ${plain(p.f)} mm each revolution.` },
+      { key: 'ap', colour: ARROW_COLOURS.ap, name: 'Depth of cut, ap', short: `ap ${plain(p.ap)} mm`,
+        text: `The layer removed, measured radially from the finished to the original surface: ${plain(p.ap)} mm.` },
+      { key: 'fc', colour: ARROW_COLOURS.fc, name: 'Cutting force, Fc', short: `Fc ${num(p.force, 0)} N`,
+        text: `The main cutting force pushes the tool down, in the direction of Vc: ${num(p.force, 1)} N (Fc = kc × ap × f).` },
+    ];
   }
 
   // One-sentence text alternative for the 3D view and the schematic.
@@ -159,7 +177,7 @@
   }
 
   const turning = {
-    motion, notes, describe, schematicSvg,
+    motion, notes, describe, schematicSvg, directions, ARROW_COLOURS,
     constants: { ROTATION_SLOWDOWN, MAX_DRAWN_REV_PER_S, FEED_DRAWN_SCALE, PASS_TIME_SCALE, MIN_PASS_S, MAX_PASS_S, MIN_DRAWN_DEPTH, MAX_DRAWN_DEPTH, MIN_LENGTH_RADII, MAX_LENGTH_RADII },
   };
   root.MachinaLab = root.MachinaLab || {};

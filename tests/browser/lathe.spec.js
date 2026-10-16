@@ -103,7 +103,7 @@ test('the reduce-motion choice is remembered without touching the student work',
     prefs: localStorage.getItem('machinalab:mmt15603:prefs:v1'),
     keys: Object.keys(localStorage).sort(),
   }));
-  expect(JSON.parse(stored.prefs)).toEqual({ reduceMotion: true });
+  expect(JSON.parse(stored.prefs)).toEqual({ reduceMotion: true, showArrows: true });
   await page.reload();
   await openSimulator(page);
   await expect(page.locator('#prefReduceMotion')).toBeChecked();
@@ -156,6 +156,31 @@ test('the labelled schematic opens and stays open after an input change', async 
   await page.locator('#liveFeed').dispatchEvent('change');
   await expect(page.locator('#latheSchematicBox')).toHaveAttribute('open', '');
   await expect(page.locator('#latheSchematicBox')).toContainText('f = 0.2 mm/rev');
+});
+
+test('direction arrows: legend with model values, and a remembered on/off switch', async ({ page }) => {
+  await openSimulator(page);
+  const legend = page.locator('.arrow-legend');
+  await expect(legend).toContainText('Cutting speed, Vc: The bar surface moves down past the tool tip at 150 m/min');
+  await expect(legend).toContainText('Feed, f: The tool moves along the bar towards the chuck by 0.15 mm');
+  await expect(legend).toContainText('Depth of cut, ap');
+  await expect(legend).toContainText('135.0 N');
+  await expect(legend).toContainText('lengths are not to scale');
+  // The legend follows the inputs while typing.
+  await page.fill('#liveFeed', '0.2');
+  await page.locator('#liveFeed').dispatchEvent('input');
+  await expect(legend).toContainText('180.0 N');                 // 1800 × 0.5 × 0.2
+  // Switching the arrows off changes the picture and is remembered.
+  await page.click('#latheToggle');                                // pause for stable frames
+  await expect(page.locator('#prefShowArrows')).toBeChecked();
+  const withArrows = await canvasShot(page);
+  await page.uncheck('#prefShowArrows');
+  await page.waitForTimeout(100);
+  expect(withArrows.equals(await canvasShot(page))).toBe(false);
+  expect(JSON.parse(await page.evaluate(() => localStorage.getItem('machinalab:mmt15603:prefs:v1')))).toEqual({ reduceMotion: false, showArrows: false });
+  await page.reload();
+  await openSimulator(page);
+  await expect(page.locator('#prefShowArrows')).not.toBeChecked();
 });
 
 test('without WebGL the labelled schematic replaces the 3D view', async ({ page }) => {

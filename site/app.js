@@ -135,7 +135,7 @@ function aboutLatheView(){
   return `<div class="card section"><h2>About the 3D turning view</h2>
     <p class="muted">The 3D view on the Live Simulator page is an <strong>illustration</strong>. It helps you connect cutting speed, feed and depth of cut to what happens at the tool. It is not a physical simulation, and nothing is measured from it.</p>
     <div class="grid two"><section><h3>Taken from the model (prediction)</h3><ul class="lathe-notes"><li>Spindle speed N, which sets how fast the bar turns on screen.</li><li>Feed per revolution f, which sets the spacing of the feed marks and how far the tool moves each turn.</li><li>Depth of cut ap = (Di − Df)/2, which sets how much material is removed.</li><li>Cutting time, which sets how long one pass takes on screen.</li></ul></section>
-    <section><h3>Drawing choices (illustration)</h3><ul class="lathe-notes"><li>The spindle turns at 1/${c.ROTATION_SLOWDOWN} of the predicted speed, at most ${c.MAX_DRAWN_REV_PER_S} rev/s on screen.</li><li>The feed per revolution is drawn ${c.FEED_DRAWN_SCALE} times larger. One pass therefore takes ${c.PASS_TIME_SCALE.toLocaleString('en-MY')} × the cutting time, kept between ${c.MIN_PASS_S} and ${c.MAX_PASS_S} s.</li><li>A shallow depth of cut is drawn at least ${Math.round(c.MIN_DRAWN_DEPTH*100)} % of the bar radius so that you can see it.</li><li>The chips, colours, lighting and surface look are not modelled. The view shows no temperature, vibration, tool wear, chip form or measured roughness.</li></ul></section></div></div>`;
+    <section><h3>Drawing choices (illustration)</h3><ul class="lathe-notes"><li>The spindle turns at 1/${c.ROTATION_SLOWDOWN} of the predicted speed, at most ${c.MAX_DRAWN_REV_PER_S} rev/s on screen.</li><li>The feed per revolution is drawn ${c.FEED_DRAWN_SCALE} times larger. One pass therefore takes ${c.PASS_TIME_SCALE.toLocaleString('en-MY')} × the cutting time, kept between ${c.MIN_PASS_S} and ${c.MAX_PASS_S} s.</li><li>A shallow depth of cut is drawn at least ${Math.round(c.MIN_DRAWN_DEPTH*100)} % of the bar radius so that you can see it.</li><li>The arrows show the directions of cutting speed, feed, depth of cut and the main cutting force. Their labels carry model values; their lengths are not to scale.</li><li>The chips, colours, lighting and surface look are not modelled. The view shows no temperature, vibration, tool wear, chip form or measured roughness.</li></ul></section></div></div>`;
 }
 // ---- 3D turning view (Stage 9) --------------------------------------------------------------
 // The view illustrates the live cutting condition. Numbers in the "Model prediction" panel come from
@@ -149,9 +149,10 @@ const PREFS_KEY = 'machinalab:mmt15603:prefs:v1';
 function readPrefs() {
   try {
     const stored = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}');
-    return { reduceMotion: Boolean(stored) && stored.reduceMotion === true };
+    const valid = Boolean(stored) && typeof stored === 'object';
+    return { reduceMotion: valid && stored.reduceMotion === true, showArrows: !(valid && stored.showArrows === false) };
   } catch {
-    return { reduceMotion: false };
+    return { reduceMotion: false, showArrows: true };
   }
 }
 let prefs = readPrefs();
@@ -175,6 +176,7 @@ function loadThree() {
     try {
       if (MachinaLab.lathe3d.supported()) {
         lathe = MachinaLab.lathe3d.create();
+        lathe.setArrowsVisible(prefs.showArrows);
         latheStatus = 'ready';
         if (motionReduced()) lathe.showMidPass();
         else lathe.play();
@@ -211,6 +213,13 @@ function latheReadout(m) {
     <p class="muted">Chips, colours and surface appearance are illustrative. Only the model prediction values are calculated.</p></div>`;
 }
 
+// Text key for the arrows in the 3D view: name, colour swatch and what the arrow means.
+function arrowLegend(m) {
+  const items = MachinaLab.turning.directions(m).map(d => `<li><span class="swatch swatch-${d.key}" aria-hidden="true"></span><strong>${esc(d.name)}</strong>: ${esc(d.text)}</li>`).join('');
+  return `<div class="arrow-legend"><h3>What the arrows show</h3><ul>${items}</ul>
+    <p class="muted">Arrows show directions only; their lengths are not to scale. The model predicts only the main (tangential) cutting force: the feed and radial force components are not calculated.</p></div>`;
+}
+
 function latheSlider(key, label, step) {
   const p = MachinaLab.params.byKey[key];
   return `<div class="field slider-field"><label for="${key}-slider">${label}</label>
@@ -241,7 +250,9 @@ function latheCard() {
       <button type="button" class="small-btn" data-lathe="out" aria-label="Zoom out">－</button>
       <button type="button" class="small-btn" data-lathe="reset">Reset view</button>
       <label class="check"><input type="checkbox" id="prefReduceMotion" ${prefs.reduceMotion ? 'checked' : ''}> Reduce motion</label>
-    </div>`;
+      <label class="check"><input type="checkbox" id="prefShowArrows" ${prefs.showArrows ? 'checked' : ''}> Show direction arrows</label>
+    </div>
+    <div data-region="latheLegend">${m ? arrowLegend(m) : ''}</div>`;
   const schematic = latheStatus === 'unsupported' ? '' : `<details class="data-table" id="latheSchematicBox" ${schematicOpen ? 'open' : ''}><summary>Show the labelled side view (schematic)</summary>
       <div data-region="latheSchematic">${m ? MachinaLab.turning.schematicSvg(m) : blocked('schematic')}</div></details>`;
   return `<section class="card section lathe-card" aria-labelledby="latheTitle">
@@ -446,6 +457,7 @@ document.addEventListener('change',e=>{
   const el=e.target;
   if(el.id==='openProgress'){openProgress(el.files&&el.files[0]);el.value='';return}
   if(el.id==='prefReduceMotion'){setReducedMotion(el.checked);return}
+  if(el.id==='prefShowArrows'){prefs.showArrows=el.checked;savePrefs();if(lathe)lathe.setArrowsVisible(el.checked);return}
   if(el.dataset.key){state[el.dataset.key]=el.dataset.key==='scenario'?el.value:numberValue(el);save();renderSoon()}
   else if(el.dataset.array){state[el.dataset.array][Number(el.dataset.index)]=numberValue(el);save();renderSoon()}
   else if(el.dataset.weight!==undefined){state.weights[Number(el.dataset.weight)]=numberValue(el);save();renderSoon()}

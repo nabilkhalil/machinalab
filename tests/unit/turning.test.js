@@ -101,6 +101,35 @@ describe('limits keep the picture readable, and say so', () => {
   });
 });
 
+describe('direction arrows (labels and legend)', () => {
+  const { r, m } = motionAt();
+  const d = Object.fromEntries(turning.directions(m).map(x => [x.key, x]));
+  test('cutting force passes through from the model (Fc = kc·ap·f = 135 N at defaults)', () => {
+    assert.equal(m.prediction.force, r.force);
+    assert.ok(Math.abs(r.force - 135) < 1e-9);
+  });
+  test('one arrow each for Vc, f, ap and Fc, labelled with units', () => {
+    assert.deepEqual(Object.keys(d), ['vc', 'feed', 'ap', 'fc']);
+    assert.equal(d.vc.short, 'Vc 150 m/min');
+    assert.equal(d.feed.short, 'f 0.15 mm/rev');
+    assert.equal(d.ap.short, 'ap 0.5 mm');
+    assert.equal(d.fc.short, 'Fc 135 N');
+  });
+  test('legend sentences state the physical direction', () => {
+    assert.match(d.vc.text, /moves down past the tool tip/);
+    assert.match(d.feed.text, /towards the chuck/);
+    assert.match(d.ap.text, /measured radially/);
+    assert.match(d.fc.text, /pushes the tool down, in the direction of Vc: 135\.0 N/);
+  });
+  test('arrow colours reach 4.5:1 on white (they are also label text colours)', () => {
+    const lum = hex => {
+      const c = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16) / 255).map(v => v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4);
+      return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+    };
+    for (const [k, hex] of Object.entries(turning.ARROW_COLOURS)) assert.ok(1.05 / (lum(hex) + 0.05) >= 4.5, `${k} ${hex}`);
+  });
+});
+
 describe('notes and text alternatives', () => {
   const { m } = motionAt();
   test('animated notes state every scale factor in plain words', () => {

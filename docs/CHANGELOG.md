@@ -14,6 +14,12 @@ First stage of the MachinaLab 2 upgrade ([development plan](DEVELOPMENT_PLAN.md)
 - **Prediction vs illustration:** a "MODEL PREDICTION" panel (N, Vc, f, ap, cutting time, Ra, input power, feasibility, copied
   unchanged from `model.js`) sits beside an "ILLUSTRATION" panel listing every scale factor in plain words. The card is badged
   "ILLUSTRATION · NOT TO SCALE". New card "About the 3D turning view" on the Models & Assumptions page.
+- **Direction arrows** (added after review): cutting speed Vc (down past the tool, tangent to the bar), feed f (towards the chuck),
+  depth of cut ap (radial dimension across the removed layer) and cutting force Fc (down on the tool, along Vc). Each is labelled
+  with its model value (Vc 150 m/min, f 0.15 mm/rev, ap 0.5 mm, Fc 135 N), with a text legend under the view that states the direction
+  in words. Lengths are not to scale, and the legend says so. Only the tangential force is modelled, and the legend says that too. "Show direction
+  arrows" switch, remembered in the preferences key (`{reduceMotion, showArrows}`).
+- **Fixed:** the bar turned the wrong way (front surface moving up past the tool). It now moves down onto the tool's top face.
 - **Sliders** for Vc (10–400 m/min) and f (0.01–0.5 mm/rev), kept in step with the number boxes in both directions.
 - **Labelled SVG schematic** (Di, Df, ap, f, Vc, N): optional on the page, and the replacement view when WebGL is unavailable.
 - **Reduced motion:** honours the system setting and a new "Reduce motion" checkbox (still picture until Play; also turns off
@@ -31,9 +37,9 @@ First stage of the MachinaLab 2 upgrade ([development plan](DEVELOPMENT_PLAN.md)
 
 **Verification**
 - Before: unit 169/169, browser 53/53.
-- After: unit **190/190** (21 new in `turning.test.js`: pass-through of predictions, scale factors, proportional response to f and Vc,
+- After: unit **194/194** (25 new in `turning.test.js`, including arrow labels, legend wording and colour contrast; pass-through of predictions, scale factors, proportional response to f and Vc,
   every clamp, notes, schematic accessibility, 500 random valid inputs with no NaN/Infinity, vendored file hash).
-- Browser **69/69** on two consecutive full runs; `lathe.spec.js` (16 new) 48/48 over 3 repeats. New tests cover lazy loading, readout
+- Browser **70/70** (after the arrows were added); before that, 69/69 on two consecutive full runs; `lathe.spec.js` (17 new) 48/48 over 3 repeats. New tests cover lazy loading, readout
   values at defaults (965 rev/min, 41.5 s, 0.879 µm), slider ↔ number box sync, animation running and pausing (frame comparison),
   reduced motion (system and checkbox, persisted), tampered preferences, blocked state, canvas surviving re-render and navigation,
   keyboard view buttons, schematic staying open, the no-WebGL fallback, axe 0 violations with the 3D view loaded, 375 px width, file://.
