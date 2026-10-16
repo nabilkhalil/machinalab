@@ -1,6 +1,6 @@
 # Changelog
 
-## Stage 9 — 3D turning view prototype (2026-10-16)
+## Stage 9 — 3D turning view prototype (2026-10-16) · released as version 1.2.0
 
 First stage of the MachinaLab 2 upgrade ([development plan](DEVELOPMENT_PLAN.md)). Branch `stage-9-turning-3d`.
 
@@ -48,6 +48,10 @@ First stage of the MachinaLab 2 upgrade ([development plan](DEVELOPMENT_PLAN.md)
   (≈ 7 s alone with software WebGL; it exceeded 30 s once under full parallel load).
 - Visual review of screenshots: desktop 1366 px, phone 375 px, schematic, and no-WebGL fallback. The review caught an over-close camera,
   overlapping schematic labels and animation notes shown on the still fallback; all three were fixed.
+
+**Release (1.2.0)**
+- `APP_VERSION` 1.2.0 (sidebar shows "Version 1.2"); CSS/JS links carry `?v=1.2.0` so returning students get the new scripts.
+- README rewritten for students and lecturers (live link, quick start, 3D view, privacy, troubleshooting), maintainer notes last.
 
 **Known issues / deferred**
 - Three.js r159 logs one console warning ("build/three.min.js is deprecated"). Harmless; see decision 0001.

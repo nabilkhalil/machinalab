@@ -10,14 +10,14 @@ lecturers who set the PBL tasks and mark the exported results.
 
 ## Current state (as of the 2026-10-15 audit — see `docs/AUDIT.md`)
 
-- Stages 1–8 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.1.0 (`APP_VERSION` in app.js).
+- Stages 1–9 done (see `docs/CHANGELOG.md`). Git repo on `main`. App version 1.2.0 (`APP_VERSION` in app.js; bump the `?v=` query on CSS/JS links in index.html with it).
 - App: `site/index.html`, `site/js/params.js` (input schema), `site/js/model.js` (machining model, pure), `site/js/validate.js` (validate/sanitise),
   `site/js/export.js` (CSV v2, progress files), `site/js/charts.js` (SVG chart builders),
   `site/js/turning.js` (pure model-result → 3D drawing/motion mapping and SVG schematic), `site/js/lathe3d.js` (Three.js scene,
   browser only), `site/js/vendor/three.min.js` (Three.js r159, lazy-loaded, hash-pinned),
   `site/app.js` (state, rendering, events; still compact style), `site/styles.css`. Only `site/` is deployed.
-- Upgrade to MachinaLab 2 in progress: see `docs/DEVELOPMENT_PLAN.md` (stages 9–14). Stage 9 (3D turning view) is on branch
-  `stage-9-turning-3d`; work reaches `main` only by pull request after CI passes.
+- Upgrade to MachinaLab 2 in progress: see `docs/DEVELOPMENT_PLAN.md` (stages 9–14). Stage 9 (3D turning view) released as 1.2.0;
+  work reaches `main` only by pull request after CI passes.
 - Workbook: `reference/MMT15603_Virtual_Machinability_Simulator.xlsx`. Parity run on 2026-10-15
   (`docs/excel-parity-report.md`): machining quantities, cost analysis and decision matrix all match
   the workbook (decision scoring aligned in Stage 2).

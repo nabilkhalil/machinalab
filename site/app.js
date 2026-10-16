@@ -15,7 +15,7 @@ const prompts=[
 ];
 // Saved work is untrusted (it may be corrupted, or edited by another page on the same github.io
 // origin), so every field is checked against the parameter schema before use (js/validate.js).
-const APP_VERSION='1.1.0';
+const APP_VERSION='1.2.0';
 // Versioned, namespaced storage. Work saved before Stage 4 (flat object under the old key) is still read.
 const STORAGE_KEY='machinalab:mmt15603:v2',LEGACY_STORAGE_KEY='machinalab-v1';
 function readStored(){
