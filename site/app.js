@@ -67,7 +67,7 @@ function metric(label,value,unit,hint=''){return `<div class="card"><div class="
 function status(r){return `<span class="status ${r.feasible?'ok':'bad'}">${r.feasible?'FEASIBLE':'NOT FEASIBLE'}</span>`}
 function hero(title,desc){return `<div class="hero"><div><span class="pill">STUDENT-CENTRED VIRTUAL LAB</span><h2>${title}</h2><p>${desc}</p></div><div class="symbol" aria-hidden="true">⚙</div></div>`}
 function overview(){let t=trials(),feasible=t.filter(x=>x.feasible);return hero('Explore machining. Interpret evidence. Make engineering decisions.','An interactive CNC turning assessment for AISI 1045 steel. Adjust parameters, run virtual experiments, and justify your recommendation.')+`<div class="grid">${metric('Virtual trials','9','conditions')}${metric('Feasible conditions',modelOk()?feasible.length:'—','of 9',modelOk()?'':'Fix the highlighted inputs')}${metric('Surface roughness limit',fmt(effRa()),'µm')}${metric('Batch quantity',fmt(batch(),0),'parts')}</div><div class="grid two"><section class="card"><h2>Learning workflow</h2><div class="step"><strong>01 · Configure</strong><br>Review material, tool, machine, and cost assumptions.</div><div class="step"><strong>02 · Simulate</strong><br>Change cutting speed and feed and interpret instant predictions.</div><div class="step"><strong>03 · Compare</strong><br>Evaluate nine trials and plot engineering responses.</div><div class="step"><strong>04 · Decide</strong><br>Assess feasibility, production cost, and weighted scores.</div><div class="step"><strong>05 · Report</strong><br>Document findings, export CSV, and print your report.</div></section><section class="card"><h2>Industrial challenge</h2><p class="muted" id="challenge">A manufacturer must finish-turn ${plain(batch())} steel shafts from Ø${plain(state.initial)} to Ø${plain(state.final)} mm across a ${plain(state.length)} mm cutting length. Surface roughness must satisfy Ra ≤ ${plain(effRa())} µm and machine input power must remain within ${plain(state.maxPower)} kW.</p><div class="callout">Your task: select a suitable cutting condition considering surface quality, material removal rate, power, cycle time, and manufacturing cost. All results are simplified theoretical predictions.</div><p class="muted">Industrial change request: <strong>${state.scenario==='BASE'?'Base scenario':state.scenario==='A'?'A · Ra ≤ 0.8 µm':state.scenario==='B'?'B · Batch 3,500':'C · Tool life −40%'}</strong></p><button class="primary" data-goto="simulator">Open live simulator →</button></section></div>`}
-function simulator(){const r=live();return `<div class="grid two"><section class="card"><h2>Interactive cutting parameters</h2><p class="muted">Edit the two blue input fields. Results update automatically.</p><div class="form-grid">${field('Cutting speed Vc (m/min)','liveSpeed',10)}${field('Feed f (mm/rev)','liveFeed',.01)}</div><h3 class="spaced">Workpiece & tool settings</h3><div class="form-grid">${field('Initial diameter (mm)','initial',.1)}${field('Final diameter (mm)','final',.1)}${field('Machining length (mm)','length',1)}${field('Nose radius (mm)','nose',.1)}</div><p class="muted">Radial depth of cut = (initial diameter − final diameter) / 2. Changing diameters changes the stock allowance.</p><h3>Material & machine assumptions</h3><div class="form-grid">${field('Specific cutting force kc (N/mm²)','kc',10)}${field('Drive efficiency (0–1)','eff',.01)}${field('Max machine input power (kW)','maxPower',.1)}${field('Ra limit (µm)','raLimit',.1)}</div></section><section data-region="simResults">${modelOk()?`<div class="grid two">${metric('Theoretical Ra',fmt(r.ra,3),'µm',r.ra<=effRa()?'Meets roughness limit':'Exceeds roughness limit')}${metric('Material removal rate',fmt(r.mrr/1000),'cm³/min')}${metric('Cutting force',fmt(r.force,1),'N')}${metric('Input power',fmt(r.inputPower,3),'kW')}${metric('Spindle speed',fmt(r.rpm,0),'rpm')}${metric('Cutting time',fmt(r.cutTime,1),'s')}${metric('Cost per part','RM '+fmt(r.cost,2),'')}${metric('Cutting power',fmt(r.cutPower,3),'kW')}</div><div class="card"><h2>Feasibility check</h2>${status(r)}<p class="muted">Surface roughness: ${fmt(r.ra,3)} / ${fmt(effRa(),2)} µm<br>Machine input power: ${fmt(r.inputPower,3)} / ${fmt(state.maxPower,2)} kW</p><div class="callout">Model assumptions: constant specific cutting force, ideal feed-mark roughness, constant mean diameter, fixed tool life. These predictions do not establish real machining performance.</div></div>`:blocked('predictions')}</section></div>`}
+function simulator(){const r=live();return latheCard()+`<div class="grid two"><section class="card"><h2>Interactive cutting parameters</h2><p class="muted">Edit the two blue input fields. Results update automatically.</p><div class="form-grid">${field('Cutting speed Vc (m/min)','liveSpeed',10)}${field('Feed f (mm/rev)','liveFeed',.01)}</div><h3 class="spaced">Workpiece & tool settings</h3><div class="form-grid">${field('Initial diameter (mm)','initial',.1)}${field('Final diameter (mm)','final',.1)}${field('Machining length (mm)','length',1)}${field('Nose radius (mm)','nose',.1)}</div><p class="muted">Radial depth of cut = (initial diameter − final diameter) / 2. Changing diameters changes the stock allowance.</p><h3>Material & machine assumptions</h3><div class="form-grid">${field('Specific cutting force kc (N/mm²)','kc',10)}${field('Drive efficiency (0–1)','eff',.01)}${field('Max machine input power (kW)','maxPower',.1)}${field('Ra limit (µm)','raLimit',.1)}</div></section><section data-region="simResults">${modelOk()?`<div class="grid two">${metric('Theoretical Ra',fmt(r.ra,3),'µm',r.ra<=effRa()?'Meets roughness limit':'Exceeds roughness limit')}${metric('Material removal rate',fmt(r.mrr/1000),'cm³/min')}${metric('Cutting force',fmt(r.force,1),'N')}${metric('Input power',fmt(r.inputPower,3),'kW')}${metric('Spindle speed',fmt(r.rpm,0),'rpm')}${metric('Cutting time',fmt(r.cutTime,1),'s')}${metric('Cost per part','RM '+fmt(r.cost,2),'')}${metric('Cutting power',fmt(r.cutPower,3),'kW')}</div><div class="card"><h2>Feasibility check</h2>${status(r)}<p class="muted">Surface roughness: ${fmt(r.ra,3)} / ${fmt(effRa(),2)} µm<br>Machine input power: ${fmt(r.inputPower,3)} / ${fmt(state.maxPower,2)} kW</p><div class="callout">Model assumptions: constant specific cutting force, ideal feed-mark roughness, constant mean diameter, fixed tool life. These predictions do not establish real machining performance.</div></div>`:blocked('predictions')}</section></div>`}
 function tableRows(t){return t.map(r=>`<tr><td><strong>${r.id}</strong></td><td>${fmt(r.v,0)}</td><td>${fmt(r.f,2)}</td><td>${fmt(r.rpm,0)}</td><td>${fmt(r.mrr/1000,2)}</td><td>${fmt(r.ra,3)}</td><td>${fmt(r.force,1)}</td><td>${fmt(r.inputPower,3)}</td><td>${fmt(r.cutTime,1)}</td><td>RM ${fmt(r.cost,2)}</td><td>${status(r)}</td></tr>`).join('')}
 function experiments(){return `<div class="card section"><div class="row"><div><h2>Nine virtual machining experiments</h2><p class="muted">3 × 3 factorial matrix. Change level values below to repeat the experiments.</p></div><button class="small-btn" id="resetLevels">Reset levels</button></div><div class="form-grid">${['speeds','feeds'].map(arr=>state[arr].map((v,i)=>{const key=`${arr}.${i}`,label=arr==='speeds'?`Speed level ${i+1} (m/min)`:`Feed level ${i+1} (mm/rev)`;return `<div class="field"><label for="${domId(key)}">${label}</label><input id="${domId(key)}" type="number" step="${arr==='speeds'?10:.01}" data-array="${arr}" data-index="${i}" value="${esc(v??'')}" ${invalidAttrs(key)}>${fieldMessage(key)}</div>`}).join('')).join('')}</div></div><div data-region="expResults">${modelOk()?`<section class="card"><div class="row"><h2>Predicted machining results</h2><span class="pill">${trials().filter(t=>t.feasible).length} feasible</span></div><div class="table-wrap" tabindex="0" role="region" aria-label="Predicted machining results table"><table><thead><tr><th>Trial</th><th>Vc m/min</th><th>f mm/rev</th><th>RPM</th><th>MRR cm³/min</th><th>Ra µm</th><th>Fc N</th><th>Input kW</th><th>Cut s</th><th>Cost / part</th><th>Status</th></tr></thead><tbody>${tableRows(trials())}</tbody></table></div><p class="muted">The nine-trial matrix uses the same workpiece, material, and machine assumptions as the live simulator.</p></section>`:blocked()}</div>`}
 // ---- Charts (built by js/charts.js) ---------------------------------------------------
@@ -128,7 +128,189 @@ function progressPanel(){
   const msg=progressMessage?`<p class="progress-msg ${progressMessage.ok?'ok':'bad'}" role="status">${esc(progressMessage.text)}</p>`:'';
   return `<div class="progress-box"><h3>Move your work to another computer</h3><p class="muted">Your work saves automatically, but only in this browser on this computer. To continue elsewhere, save a progress file (for example to a USB drive or cloud folder) and open it on the other computer.</p><div class="row-actions"><button type="button" class="secondary" id="saveProgress">↓ Save progress file</button><button type="button" class="secondary" id="openProgressBtn">↑ Open progress file</button><input type="file" id="openProgress" accept=".json,application/json" hidden></div>${msg}</div>`;
 }
-function models(){return `<div class="grid two">${[['Spindle speed','N = 1000 × Vc / (π × Dmean)','rev/min · constant mean diameter'],['Material removal rate','MRR = 1000 × Vc × f × ap','mm³/min · approximate turning relationship'],['Ideal roughness','Ra = 1000 × f² / (32 × rε)','µm · feed-mark geometry only'],['Cutting force','Fc = kc × ap × f','N · constant specific cutting force'],['Cutting power','Pc = Fc × Vc / 60000','kW'],['Machine input power','Pinput = Pc / η','kW · constant drive efficiency'],['Cutting time','tcut = 60 × L / (f × N)','seconds · no approach or retract'],['Cycle time','tcycle = tcut + tnoncut','seconds'],['Cost per component','C = tcycle/3600 × rate + tcut/60/T × insert/edges','RM · tool life T in minutes'],['Tool cost per component','Ctool = tcut/60/T × insert/edges','RM · share of one insert edge used per part'],['Batch cycle time','tbatch = tcycle × batch / 3600','hours · excludes setup and tool changes'],['Decision scores','Ra: 100 × (Ramax − Ra)/(Ramax − Ramin) · MRR: 100 × MRR/MRRmax · Power: 100 × Pmin/P · Cost: 100 × Cmin/C','0–100 across all nine trials · weighted total for feasible trials only']].map(([title,formula,note])=>`<section class="card"><h3>${title}</h3><div class="formula">${formula}</div><p class="muted">${note}</p></section>`).join('')}</div><div class="card"><h2>Model limitations and validation</h2><p class="muted">This web app translates the provided Excel workbook into a transparent educational analytical simulator. Results are deterministic predictions, not experimental measurements. The model excludes temperature, vibration, progressive tool wear, chip morphology, tool geometry effects beyond nose radius, and measured surface integrity. Tool life is an independent scenario assumption rather than a cutting-speed-dependent Taylor equation. The cutting-force coefficient is constant and should be supported by a material/tool reference. For real machining decisions, validate assumptions against tooling data and physical trials.</p><div class="callout">Depth of cut is fixed by the workpiece diameters. Changing the depth requires a matching change in stock allowance or machining strategy.</div></div>`}
+function models(){return `<div class="grid two">${[['Spindle speed','N = 1000 × Vc / (π × Dmean)','rev/min · constant mean diameter'],['Material removal rate','MRR = 1000 × Vc × f × ap','mm³/min · approximate turning relationship'],['Ideal roughness','Ra = 1000 × f² / (32 × rε)','µm · feed-mark geometry only'],['Cutting force','Fc = kc × ap × f','N · constant specific cutting force'],['Cutting power','Pc = Fc × Vc / 60000','kW'],['Machine input power','Pinput = Pc / η','kW · constant drive efficiency'],['Cutting time','tcut = 60 × L / (f × N)','seconds · no approach or retract'],['Cycle time','tcycle = tcut + tnoncut','seconds'],['Cost per component','C = tcycle/3600 × rate + tcut/60/T × insert/edges','RM · tool life T in minutes'],['Tool cost per component','Ctool = tcut/60/T × insert/edges','RM · share of one insert edge used per part'],['Batch cycle time','tbatch = tcycle × batch / 3600','hours · excludes setup and tool changes'],['Decision scores','Ra: 100 × (Ramax − Ra)/(Ramax − Ramin) · MRR: 100 × MRR/MRRmax · Power: 100 × Pmin/P · Cost: 100 × Cmin/C','0–100 across all nine trials · weighted total for feasible trials only']].map(([title,formula,note])=>`<section class="card"><h3>${title}</h3><div class="formula">${formula}</div><p class="muted">${note}</p></section>`).join('')}</div><div class="card"><h2>Model limitations and validation</h2><p class="muted">This web app translates the provided Excel workbook into a transparent educational analytical simulator. Results are deterministic predictions, not experimental measurements. The model excludes temperature, vibration, progressive tool wear, chip morphology, tool geometry effects beyond nose radius, and measured surface integrity. Tool life is an independent scenario assumption rather than a cutting-speed-dependent Taylor equation. The cutting-force coefficient is constant and should be supported by a material/tool reference. For real machining decisions, validate assumptions against tooling data and physical trials.</p><div class="callout">Depth of cut is fixed by the workpiece diameters. Changing the depth requires a matching change in stock allowance or machining strategy.</div></div>${aboutLatheView()}`}
+// What the 3D turning view shows, and what it does not (Stage 9).
+function aboutLatheView(){
+  const c=MachinaLab.turning.constants;
+  return `<div class="card section"><h2>About the 3D turning view</h2>
+    <p class="muted">The 3D view on the Live Simulator page is an <strong>illustration</strong>. It helps you connect cutting speed, feed and depth of cut to what happens at the tool. It is not a physical simulation, and nothing is measured from it.</p>
+    <div class="grid two"><section><h3>Taken from the model (prediction)</h3><ul class="lathe-notes"><li>Spindle speed N, which sets how fast the bar turns on screen.</li><li>Feed per revolution f, which sets the spacing of the feed marks and how far the tool moves each turn.</li><li>Depth of cut ap = (Di − Df)/2, which sets how much material is removed.</li><li>Cutting time, which sets how long one pass takes on screen.</li></ul></section>
+    <section><h3>Drawing choices (illustration)</h3><ul class="lathe-notes"><li>The spindle turns at 1/${c.ROTATION_SLOWDOWN} of the predicted speed, at most ${c.MAX_DRAWN_REV_PER_S} rev/s on screen.</li><li>The feed per revolution is drawn ${c.FEED_DRAWN_SCALE} times larger. One pass therefore takes ${c.PASS_TIME_SCALE.toLocaleString('en-MY')} × the cutting time, kept between ${c.MIN_PASS_S} and ${c.MAX_PASS_S} s.</li><li>A shallow depth of cut is drawn at least ${Math.round(c.MIN_DRAWN_DEPTH*100)} % of the bar radius so that you can see it.</li><li>The chips, colours, lighting and surface look are not modelled. The view shows no temperature, vibration, tool wear, chip form or measured roughness.</li></ul></section></div></div>`;
+}
+// ---- 3D turning view (Stage 9) --------------------------------------------------------------
+// The view illustrates the live cutting condition. Numbers in the "Model prediction" panel come from
+// js/model.js; js/turning.js turns them into drawing scales; js/lathe3d.js draws them with Three.js.
+// Three.js (js/vendor/three.min.js, docs/decisions/0001) loads only when the simulator first opens.
+// The scene is created once and moved into each freshly rendered page, so the animation, camera
+// angle and pass position survive re-rendering.
+
+// Display preferences are per browser, separate from the student's work, and hold no personal data.
+const PREFS_KEY = 'machinalab:mmt15603:prefs:v1';
+function readPrefs() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(PREFS_KEY) || '{}');
+    return { reduceMotion: Boolean(stored) && stored.reduceMotion === true };
+  } catch {
+    return { reduceMotion: false };
+  }
+}
+let prefs = readPrefs();
+function savePrefs() {
+  try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch { /* preference only lasts this visit */ }
+}
+// Reduced motion: the operating-system setting or the student's own choice on this page.
+const motionReduced = () => prefs.reduceMotion || reduceMotion.matches;
+
+let lathe = null;
+let latheStatus = 'idle';          // idle → loading → ready | unsupported
+let schematicOpen = false;
+
+function loadThree() {
+  if (latheStatus !== 'idle') return;
+  if (!MachinaLab.lathe3d) { latheStatus = 'unsupported'; return; }
+  latheStatus = 'loading';
+  const script = document.createElement('script');
+  script.src = 'js/vendor/three.min.js';
+  script.onload = () => {
+    try {
+      if (MachinaLab.lathe3d.supported()) {
+        lathe = MachinaLab.lathe3d.create();
+        latheStatus = 'ready';
+        if (motionReduced()) lathe.showMidPass();
+        else lathe.play();
+      } else {
+        latheStatus = 'unsupported';
+      }
+    } catch {
+      latheStatus = 'unsupported';
+    }
+    if (page === 'simulator') render();
+  };
+  script.onerror = () => {
+    latheStatus = 'unsupported';
+    if (page === 'simulator') render();
+  };
+  document.head.appendChild(script);
+}
+
+// Motion description for the live condition, or null when the inputs are invalid.
+function liveMotion() {
+  return modelOk() ? MachinaLab.turning.motion(state, live()) : null;
+}
+
+function latheReadout(m) {
+  if (!m) return blocked('3D view');
+  const p = m.prediction;
+  const row = (label, value) => `<div><dt>${label}</dt><dd>${value}</dd></div>`;
+  return `<div class="readout-block"><span class="pill">MODEL PREDICTION</span>
+    <dl class="readout">${row('Spindle speed, N', `${fmt(p.rpm, 0)} rev/min`)}${row('Cutting speed, Vc', `${plain(p.v)} m/min`)}${row('Feed per revolution, f', `${fmt(p.f, 2)} mm/rev`)}${row('Depth of cut, ap', `${plain(p.ap)} mm`)}${row('Cutting time per part', `${fmt(p.cutTime, 1)} s`)}${row('Theoretical roughness, Ra', `${fmt(p.ra, 3)} µm`)}${row('Machine input power', `${fmt(p.inputPower, 3)} kW`)}</dl>
+    ${status(p)}</div>
+    <div class="readout-block"><span class="pill illus">ILLUSTRATION</span>
+    <p class="muted">The picture is drawn for understanding, not to scale:</p>
+    <ul class="lathe-notes">${MachinaLab.turning.notes(m, latheStatus !== 'unsupported').map(n => `<li>${esc(n)}</li>`).join('')}</ul>
+    <p class="muted">Chips, colours and surface appearance are illustrative. Only the model prediction values are calculated.</p></div>`;
+}
+
+function latheSlider(key, label, step) {
+  const p = MachinaLab.params.byKey[key];
+  return `<div class="field slider-field"><label for="${key}-slider">${label}</label>
+    <input id="${key}-slider" type="range" min="${p.min}" max="${key === 'liveSpeed' ? 400 : 0.5}" step="${step}" data-key="${key}" value="${esc(state[key] ?? '')}">
+    <span class="slider-value" data-region="${key}-value">${esc(plain(state[key]))} ${esc(p.unit)}</span></div>`;
+}
+
+function latheCard() {
+  const m = liveMotion();
+  let host;
+  if (latheStatus === 'unsupported') {
+    host = `<div class="lathe-fallback" data-region="latheFallback">${m ? MachinaLab.turning.schematicSvg(m, 'ts-fallback') : ''}</div>
+      <p class="muted">The 3D view cannot run on this computer (WebGL graphics are switched off or not supported). The labelled schematic shows the same cut.</p>`;
+  } else if (latheStatus === 'ready') {
+    host = '';
+  } else {
+    host = '<p class="muted lathe-loading">Loading the 3D view…</p>';
+  }
+  const playing = lathe && lathe.isPlaying();
+  const controls = latheStatus === 'unsupported' ? '' : `<div class="lathe-controls" role="group" aria-label="3D view controls">
+      <button type="button" class="small-btn" data-lathe="toggle" id="latheToggle">${playing ? 'Pause' : 'Play'}</button>
+      <button type="button" class="small-btn" data-lathe="restart">Restart pass</button>
+      <button type="button" class="small-btn" data-lathe="left" aria-label="Rotate view left">◀ Turn</button>
+      <button type="button" class="small-btn" data-lathe="right" aria-label="Rotate view right">Turn ▶</button>
+      <button type="button" class="small-btn" data-lathe="up" aria-label="View from higher">▲</button>
+      <button type="button" class="small-btn" data-lathe="down" aria-label="View from lower">▼</button>
+      <button type="button" class="small-btn" data-lathe="in" aria-label="Zoom in">＋</button>
+      <button type="button" class="small-btn" data-lathe="out" aria-label="Zoom out">－</button>
+      <button type="button" class="small-btn" data-lathe="reset">Reset view</button>
+      <label class="check"><input type="checkbox" id="prefReduceMotion" ${prefs.reduceMotion ? 'checked' : ''}> Reduce motion</label>
+    </div>`;
+  const schematic = latheStatus === 'unsupported' ? '' : `<details class="data-table" id="latheSchematicBox" ${schematicOpen ? 'open' : ''}><summary>Show the labelled side view (schematic)</summary>
+      <div data-region="latheSchematic">${m ? MachinaLab.turning.schematicSvg(m) : blocked('schematic')}</div></details>`;
+  return `<section class="card section lathe-card" aria-labelledby="latheTitle">
+    <div class="row"><div><h2 id="latheTitle">3D turning view</h2><p class="muted">Move the sliders and watch the cut change. Drag the picture, or use the buttons, to look around.</p></div><span class="pill illus">ILLUSTRATION · NOT TO SCALE</span></div>
+    <div class="lathe-layout"><div>
+      <div id="latheHost" class="lathe-host${m ? '' : ' is-blocked'}">${host}</div>
+      ${controls}
+      <div class="form-grid slider-grid">${latheSlider('liveSpeed', 'Cutting speed, Vc (m/min)', 5)}${latheSlider('liveFeed', 'Feed per revolution, f (mm/rev)', 0.01)}</div>
+      <p class="muted">Depth of cut comes from the initial and final diameters below. Type exact values in the boxes underneath.</p>
+    </div>
+    <div class="lathe-readout" data-region="latheReadout">${latheReadout(m)}</div></div>
+    ${schematic}
+  </section>`;
+}
+
+// Put the persistent 3D canvas into the freshly rendered page and give it the current condition.
+function mountLathe() {
+  if (latheStatus === 'idle') loadThree();
+  const host = $('#latheHost');
+  if (!host || latheStatus !== 'ready' || !lathe) return;
+  if (lathe.canvas.parentNode !== host) host.replaceChildren(lathe.canvas);
+  syncLathe();
+}
+
+function syncLathe() {
+  if (!lathe || page !== 'simulator') return;
+  const host = $('#latheHost');
+  const m = liveMotion();
+  if (host) host.classList.toggle('is-blocked', !m);
+  if (!m) {
+    lathe.canvas.setAttribute('aria-label', '3D turning view, paused: fix the highlighted inputs to see the cut.');
+    return;
+  }
+  lathe.setMotion(m);
+  lathe.canvas.setAttribute('aria-label', MachinaLab.turning.describe(m));
+  lathe.resume();
+}
+
+function latheButton(action) {
+  if (!lathe) return;
+  const turn = 0.35;
+  if (action === 'toggle') {
+    if (lathe.isPlaying()) lathe.pause();
+    else lathe.play();
+    $('#latheToggle').textContent = lathe.isPlaying() ? 'Pause' : 'Play';
+  }
+  if (action === 'restart') lathe.restart();
+  if (action === 'left') lathe.orbit(-turn, 0);
+  if (action === 'right') lathe.orbit(turn, 0);
+  if (action === 'up') lathe.orbit(0, 0.15);
+  if (action === 'down') lathe.orbit(0, -0.15);
+  if (action === 'in') lathe.zoom(0.85);
+  if (action === 'out') lathe.zoom(1 / 0.85);
+  if (action === 'reset') lathe.resetView();
+}
+
+function setReducedMotion(on) {
+  prefs.reduceMotion = on;
+  savePrefs();
+  if (!lathe) return;
+  if (motionReduced()) {
+    lathe.pause();
+  } else {
+    lathe.play();
+  }
+  const toggle = $('#latheToggle');
+  if (toggle) toggle.textContent = lathe.isPlaying() ? 'Pause' : 'Play';
+}
+
 const views={dashboard:overview,simulator,experiments,analysis,cost:costPage,pbl,models};const titles={dashboard:'Machinability Overview',simulator:'Live Turning Simulator',experiments:'Virtual Experimental Laboratory',analysis:'Machinability Data Analysis',cost:'Cost & Decision Analysis',pbl:'PBL Student Workbook',models:'Engineering Models & Assumptions'};
 // Notice banner: input errors and warnings with a button that takes the student to the field.
 function renderNotice(){
@@ -154,6 +336,7 @@ function render(){
   document.querySelectorAll('#nav button').forEach(b=>{const on=b.dataset.page===page;b.classList.toggle('active',on);on?b.setAttribute('aria-current','page'):b.removeAttribute('aria-current')});
   const again=focusId&&document.getElementById(focusId);
   if(again){again.focus({preventScroll:true});if(caret&&caret[0]!=null)try{again.setSelectionRange(caret[0],caret[1])}catch{}}
+  if(page==='simulator')mountLathe();
 }
 // Re-render after the browser has finished moving focus (e.g. Tab), so the newly focused field is restored.
 const renderSoon=()=>setTimeout(render,0);
@@ -170,8 +353,9 @@ function update(){
     if(!next||next.innerHTML===el.innerHTML)return;
     el.innerHTML=next.innerHTML;
     // Briefly highlight results that changed (skipped for reduced-motion users and message slots).
-    if(!reduceMotion.matches&&!el.classList.contains('field-msg-slot')){el.classList.remove('changed');void el.offsetWidth;el.classList.add('changed')}
+    if(!motionReduced()&&!el.classList.contains('field-msg-slot')){el.classList.remove('changed');void el.offsetWidth;el.classList.add('changed')}
   });
+  syncLathe();
   // Keep each input's validation state in step without replacing the element.
   view.querySelectorAll('input[id]').forEach(el=>{
     const next=fresh.querySelector('#'+CSS.escape(el.id));
@@ -250,6 +434,8 @@ document.addEventListener('click',e=>{
   if(nav){page=nav.dataset.page||nav.dataset.goto;render();window.scrollTo(0,0);$('#pageTitle').focus({preventScroll:true})}
   const fix=e.target.closest('[data-fix]');
   if(fix){const key=fix.dataset.fix;page=fieldPage(key);render();const target=document.getElementById(key==='weights'?'weights-0':domId(key));if(target){target.focus();target.scrollIntoView({block:'center'})}}
+  const latheBtn=e.target.closest('[data-lathe]');
+  if(latheBtn)latheButton(latheBtn.dataset.lathe);
   if(e.target.closest('#exportBtn'))csv();
   if(e.target.closest('#printBtn')){renderReport();window.print()}
   if(e.target.closest('#saveProgress'))saveProgress();
@@ -259,18 +445,26 @@ document.addEventListener('click',e=>{
 document.addEventListener('change',e=>{
   const el=e.target;
   if(el.id==='openProgress'){openProgress(el.files&&el.files[0]);el.value='';return}
+  if(el.id==='prefReduceMotion'){setReducedMotion(el.checked);return}
   if(el.dataset.key){state[el.dataset.key]=el.dataset.key==='scenario'?el.value:numberValue(el);save();renderSoon()}
   else if(el.dataset.array){state[el.dataset.array][Number(el.dataset.index)]=numberValue(el);save();renderSoon()}
   else if(el.dataset.weight!==undefined){state.weights[Number(el.dataset.weight)]=numberValue(el);save();renderSoon()}
   else if(el.dataset.text){state[el.dataset.text]=el.value;save()}
 });
+// <details> toggle events do not bubble, so listen in the capture phase.
+document.addEventListener('toggle',e=>{if(e.target.id==='latheSchematicBox')schematicOpen=e.target.open},true);
 // Ctrl+P / browser menu printing also gets the full report.
 window.addEventListener('beforeprint',renderReport);
 document.addEventListener('input',e=>{
   const el=e.target;
   if(el.dataset.text){state[el.dataset.text]=el.value;save();return}
-  if(el.type!=='number')return;
-  if(el.dataset.key)state[el.dataset.key]=numberValue(el);
+  if(el.type!=='number'&&el.type!=='range')return;
+  if(el.dataset.key){
+    state[el.dataset.key]=numberValue(el);
+    // Keep the slider and the number box for the same input showing the same value.
+    const twin=document.getElementById(el.type==='range'?el.dataset.key:`${el.dataset.key}-slider`);
+    if(twin&&twin!==el)twin.value=el.value;
+  }
   else if(el.dataset.array)state[el.dataset.array][Number(el.dataset.index)]=numberValue(el);
   else if(el.dataset.weight!==undefined)state.weights[Number(el.dataset.weight)]=numberValue(el);
   else return;

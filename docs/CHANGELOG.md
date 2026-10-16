@@ -1,5 +1,54 @@
 # Changelog
 
+## Stage 9 — 3D turning view prototype (2026-10-16)
+
+First stage of the MachinaLab 2 upgrade ([development plan](DEVELOPMENT_PLAN.md)). Branch `stage-9-turning-3d`.
+
+**Changed**
+- **3D turning view** at the top of the Live Simulator page: a lathe (headstock, chuck, bar, tailstock centre, tool) turning the
+  live cutting condition, with a rotating bar, tool feed towards the chuck, material removal, feed marks and chips.
+  Drag to orbit, or use the buttons (turn, raise, lower, zoom, reset view). Play/Pause and Restart pass.
+- **Synchronised with the model:** spindle rotation ∝ predicted N (1/10 speed, capped at 4 rev/s), feed marks and tool travel ∝ f (× 50),
+  removed layer = ap (drawn ≥ 12 % of the radius), pass time = predicted cutting time × 0.2 (2–45 s). Constant factors, so doubling
+  f or Vc visibly halves the pass time. All scaling lives in the new pure module `site/js/turning.js`.
+- **Prediction vs illustration:** a "MODEL PREDICTION" panel (N, Vc, f, ap, cutting time, Ra, input power, feasibility, copied
+  unchanged from `model.js`) sits beside an "ILLUSTRATION" panel listing every scale factor in plain words. The card is badged
+  "ILLUSTRATION · NOT TO SCALE". New card "About the 3D turning view" on the Models & Assumptions page.
+- **Sliders** for Vc (10–400 m/min) and f (0.01–0.5 mm/rev), kept in step with the number boxes in both directions.
+- **Labelled SVG schematic** (Di, Df, ap, f, Vc, N): optional on the page, and the replacement view when WebGL is unavailable.
+- **Reduced motion:** honours the system setting and a new "Reduce motion" checkbox (still picture until Play; also turns off
+  the changed-value highlight). Stored under a separate key `machinalab:mmt15603:prefs:v1` = `{reduceMotion}`; no personal data,
+  student work untouched, tampered values ignored.
+- **Three.js r159** vendored in `site/js/vendor/` (decision record [0001](decisions/0001-three-js-3d-turning-view.md)), loaded
+  only when the simulator first opens; SHA-256 pinned by a unit test.
+- Performance: ≈1,000 triangles, pixel ratio ≤ 1.5, 30 fps cap, and the loop stops when paused, scrolled out of view, on another
+  page or in a hidden tab.
+- Tests: Playwright now launches Chromium with SwiftShader so WebGL runs on CI machines without a GPU.
+
+**Unchanged (verified)**
+- `site/js/model.js`, `params.js`, `validate.js`, `export.js`, `charts.js`: not modified. Baseline lock and Excel parity pass unchanged.
+- CSV export, progress files, print report (the 3D card is hidden in print) and the main storage key/schema.
+
+**Verification**
+- Before: unit 169/169, browser 53/53.
+- After: unit **190/190** (21 new in `turning.test.js`: pass-through of predictions, scale factors, proportional response to f and Vc,
+  every clamp, notes, schematic accessibility, 500 random valid inputs with no NaN/Infinity, vendored file hash).
+- Browser **69/69** on two consecutive full runs; `lathe.spec.js` (16 new) 48/48 over 3 repeats. New tests cover lazy loading, readout
+  values at defaults (965 rev/min, 41.5 s, 0.879 µm), slider ↔ number box sync, animation running and pausing (frame comparison),
+  reduced motion (system and checkbox, persisted), tampered preferences, blocked state, canvas surviving re-render and navigation,
+  keyboard view buttons, schematic staying open, the no-WebGL fallback, axe 0 violations with the 3D view loaded, 375 px width, file://.
+- Existing tests adjusted: four smoke locators scoped to `[data-region="simResults"]` because the page now shows a second
+  feasibility pill; the page-wide "no FEASIBLE for invalid input" check is kept. The phone-width axe test is marked `test.slow()`
+  (≈ 7 s alone with software WebGL; it exceeded 30 s once under full parallel load).
+- Visual review of screenshots: desktop 1366 px, phone 375 px, schematic, and no-WebGL fallback. The review caught an over-close camera,
+  overlapping schematic labels and animation notes shown on the still fallback; all three were fixed.
+
+**Known issues / deferred**
+- Three.js r159 logs one console warning ("build/three.min.js is deprecated"). Harmless; see decision 0001.
+- Feed rate vf = f·N is not shown: it is a new displayed quantity and needs the `model-change` procedure.
+- On a very short bar (length < 2 radii) the schematic's Di and Df labels can overlap.
+- Not yet tried on a real low-end lab PC or on Safari/Firefox (CI covers Chromium only).
+
 ## Stage 8 — Visualisation (2026-10-15)
 
 **Changed**

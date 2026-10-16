@@ -13,7 +13,9 @@ module.exports = defineConfig({
     baseURL: `http://127.0.0.1:${PORT}/`,
     trace: 'retain-on-failure',
   },
-  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
+  // SwiftShader gives the 3D view software WebGL on CI machines without a GPU, so the same tests
+  // run locally and in CI. (The no-WebGL fallback is tested separately by disabling WebGL.)
+  projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'], launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'] } } }],
   webServer: {
     command: `node tools/serve.js ${PORT} site`,
     url: `http://127.0.0.1:${PORT}/index.html`,

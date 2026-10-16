@@ -7,3 +7,33 @@
 
 .spaced{margin-top:23px}:focus-visible{outline:3px solid #0b7f8c;outline-offset:2px}nav button:focus-visible{outline-color:#29d0c2}#pageTitle:focus{outline:none}#pageTitle:focus-visible{outline:3px solid #0b7f8c}.skip-link{position:absolute;left:12px;top:-60px;z-index:10;background:#fff;color:#0b5560;padding:10px 14px;border-radius:8px;font-weight:700;box-shadow:0 2px 10px #0003}.skip-link:focus{top:12px}@media print{.skip-link{display:none}}
 .chart-scroll{overflow-x:auto}@media(max-width:750px){.chart-scroll .chart{min-width:520px}}.chart-note{font-size:12px;line-height:1.6;color:#526a7a;margin:8px 0 0}.data-table{margin-top:10px}.data-table summary{cursor:pointer;font-size:12px;font-weight:700;color:#0e6f79;padding:4px 0;min-height:24px}.data-table table{margin-top:8px}.data-table caption{text-align:left;font-size:12px;color:#526a7a;padding-bottom:6px}.section-title{font-size:16px;margin:26px 0 12px}.chart-card h3{font-size:14px}@media print{#report details,#report .chart-note{display:none}#report .chart-scroll .chart{min-width:0}}
+
+/* ---- 3D turning view (Stage 9) ---------------------------------------------------------- */
+.lathe-layout{display:grid;grid-template-columns:minmax(0,1.7fr) minmax(0,1fr);gap:20px;align-items:start}
+.lathe-host{position:relative;aspect-ratio:16/9;background:#dfe8ee;border-radius:10px;overflow:hidden;display:grid;place-items:center}
+.lathe-canvas{display:block;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+.lathe-canvas:active{cursor:grabbing}
+/* Invalid inputs: the picture stays visible but greyed out, like the other outputs. */
+.lathe-host.is-blocked .lathe-canvas{filter:grayscale(1);opacity:.4}
+.lathe-loading{margin:0}
+.lathe-fallback{width:100%;background:#fff;padding:8px}
+.lathe-host:has(.lathe-fallback){aspect-ratio:auto}
+.lathe-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.lathe-controls .small-btn{min-width:36px;min-height:32px}
+.check{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:650;color:#435e6f;margin-left:6px;min-height:32px}
+.check input{width:20px;height:20px;margin:0;accent-color:#087f8e}
+.slider-grid{margin-top:14px}
+.slider-field input[type=range]{width:100%;min-height:28px;border:0;background:none}
+.slider-value{display:block;font-size:13px;font-weight:700;color:#173e51;margin-top:2px}
+.lathe-readout{display:grid;gap:16px}
+.readout-block{border:1px solid #e3eaef;border-radius:10px;padding:14px}
+.readout{display:grid;gap:7px;margin:12px 0}
+.readout div{display:flex;justify-content:space-between;gap:12px;font-size:12px;border-bottom:1px solid #eef3f6;padding-bottom:6px}
+.readout dt{color:#4d6676}
+.readout dd{margin:0;font-weight:750;color:#173e51;text-align:right}
+.lathe-notes{margin:8px 0;padding-left:18px;font-size:12px;line-height:1.6;color:#41596a}
+.pill.illus{background:#fdf0e3;color:#8a4a12}
+.turning-schematic{max-width:760px;margin-top:8px}
+@media(max-width:950px){.lathe-layout{grid-template-columns:1fr}}
+@media print{.lathe-card{display:none}}
+.lathe-card>.row{flex-wrap:wrap}

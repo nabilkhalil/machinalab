@@ -7,6 +7,10 @@ description: Build and review MachinaLab's charts and interactive visuals (bar c
 
 ## Constraints
 
+- Exception: the 3D turning view (Stage 9) uses WebGL via vendored Three.js r159 (`site/js/lathe3d.js`,
+  decision 0001). It draws only what the pure `site/js/turning.js` returns, always has the SVG schematic as its
+  fallback and text alternative, and labels itself as an illustration. Keep every scale factor in `turning.js`
+  and say it in words in the UI.
 - Inline SVG generated in `site/js/charts.js`. No chart libraries, no canvas, no CDN, so the app
   keeps working offline, under CSP and in print.
 - Chart builders are pure functions `(data, options) → svgString` so they can be unit tested.

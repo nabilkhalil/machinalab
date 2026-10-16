@@ -44,6 +44,9 @@ test('no WCAG A/AA violations with errors, warnings and overrides showing', asyn
 });
 
 test('no WCAG A/AA violations at phone width', async ({ page }) => {
+  // Four full axe scans, one of them with the 3D view rendering in software WebGL (SwiftShader):
+  // about 7 s alone, but it can pass 30 s when every worker is rendering at once.
+  test.slow();
   await page.setViewportSize({ width: 375, height: 800 });
   for (const name of ['dashboard', 'simulator', 'cost', 'analysis']) {
     await page.click(`#nav button[data-page="${name}"]`);

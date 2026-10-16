@@ -66,7 +66,7 @@ test('live simulator recalculates from Vc and f', async ({ page }) => {
   await expect(metric(page, 'Spindle speed')).toContainText('1,286');
   await expect(metric(page, 'Input power')).toContainText('0.706');
   await expect(metric(page, 'Cost per part')).toContainText('RM 1.00');
-  await expect(page.locator('.status')).toHaveText('FEASIBLE');
+  await expect(page.locator('[data-region="simResults"] .status')).toHaveText('FEASIBLE');
 });
 
 test('nine-trial table matches validated values', async ({ page }) => {
@@ -94,7 +94,7 @@ test('invalid diameters: notice, marked field, and no predictions shown', async 
   await expect(page.locator('#final')).toHaveAttribute('aria-invalid', 'true');
   await expect(page.locator('#msg-final')).toContainText('bar gets thinner');
   await expect(page.locator('.status')).toHaveCount(0); // never show FEASIBLE for invalid input
-  await expect(page.locator('.blocked')).toContainText('No predictions yet');
+  await expect(page.locator('[data-region="simResults"] .blocked')).toContainText('No predictions yet');
   for (const name of ['experiments', 'analysis', 'cost']) {
     await openPage(page, name);
     await expect(page.locator('.blocked').first()).toBeVisible();
@@ -136,7 +136,7 @@ test('feed larger than nose radius shows a warning, not an error', async ({ page
   await setNumber(page, '#liveFeed', 0.9);
   await expect(page.locator('#notice')).toContainText('not smaller than the nose radius');
   await expect(page.locator('#notice')).toHaveClass(/warn/);
-  await expect(page.locator('.status')).toHaveText('NOT FEASIBLE'); // results still shown
+  await expect(page.locator('[data-region="simResults"] .status')).toHaveText('NOT FEASIBLE'); // results still shown
 });
 
 test('tampered storage cannot inject markup', async ({ page }) => {
@@ -381,7 +381,7 @@ test('typing an invalid value shows the problem live, and fixing it restores res
   await box.pressSequentially('49', { delay: 50 });
   await expect(page.locator('#msg-final')).toHaveCount(0);
   await expect(box).not.toHaveAttribute('aria-invalid', 'true');
-  await expect(page.locator('.status')).toHaveText('FEASIBLE');
+  await expect(page.locator('[data-region="simResults"] .status')).toHaveText('FEASIBLE');
   await expect(box).toBeFocused();
 });
 
