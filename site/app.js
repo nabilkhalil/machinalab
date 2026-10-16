@@ -186,13 +186,34 @@ function loadThree() {
     } catch {
       latheStatus = 'unsupported';
     }
-    if (page === 'simulator') render();
+    refreshLatheCard();
   };
   script.onerror = () => {
     latheStatus = 'unsupported';
-    if (page === 'simulator') render();
+    refreshLatheCard();
   };
   document.head.appendChild(script);
+}
+
+// Swap in the loaded 3D view (or its fallback) without rebuilding the page. Three.js can finish
+// loading while a student is typing in a number box; a full render would recreate that box and
+// lose the caret (number inputs cannot restore it), so "55" could become "5549".
+function refreshLatheCard() {
+  const card = page === 'simulator' && $('.lathe-card');
+  if (!card) return;
+  const fresh = document.createElement('div');
+  fresh.innerHTML = latheCard();
+  for (const selector of ['#latheHost', '[data-region="latheReadout"]']) {
+    const current = card.querySelector(selector);
+    const next = fresh.querySelector(selector);
+    if (current && next) current.replaceWith(next);
+  }
+  if (latheStatus === 'unsupported') {
+    card.querySelectorAll('.lathe-controls, [data-region="latheLegend"], #latheSchematicBox').forEach(el => el.remove());
+  }
+  mountLathe();
+  const toggle = $('#latheToggle');
+  if (toggle && lathe) toggle.textContent = lathe.isPlaying() ? 'Pause' : 'Play';
 }
 
 // Motion description for the live condition, or null when the inputs are invalid.

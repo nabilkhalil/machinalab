@@ -53,6 +53,12 @@ First stage of the MachinaLab 2 upgrade ([development plan](DEVELOPMENT_PLAN.md)
 - `APP_VERSION` 1.2.0 (sidebar shows "Version 1.2"); CSS/JS links carry `?v=1.2.0` so returning students get the new scripts.
 - README rewritten for students and lecturers (live link, quick start, 3D view, privacy, troubleshooting), maintainer notes last.
 
+**Fixed before release (CI on `main` caught it)**
+- When Three.js finished loading, the whole page was re-rendered. A student typing in a number box at that moment got a
+  rebuilt box with the caret at the start ("4", then "8", became "84"). Now only the 3D card is swapped in
+  (`refreshLatheCard`), so input boxes are never rebuilt. Regression test holds the library back mid-typing; it failed
+  with "84" before the fix. Browser tests 71/71 on two runs.
+
 **Known issues / deferred**
 - Three.js r159 logs one console warning ("build/three.min.js is deprecated"). Harmless; see decision 0001.
 - Feed rate vf = f·N is not shown: it is a new displayed quantity and needs the `model-change` procedure.

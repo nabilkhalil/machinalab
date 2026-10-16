@@ -22,7 +22,7 @@ lecturers who set the PBL tasks and mark the exported results.
   (`docs/excel-parity-report.md`): machining quantities, cost analysis and decision matrix all match
   the workbook (decision scoring aligned in Stage 2).
 - Tests: `npm test` runs the baseline lock (`baseline-v2.json`), Excel parity and scoring properties
-  plus model, validation, export, charts and the turning mapping (194 pass, 0 todo). `npm run test:browser` runs 70 Playwright tests
+  plus model, validation, export, charts and the turning mapping (194 pass, 0 todo). `npm run test:browser` runs 71 Playwright tests
   (`smoke.spec.js`, `lathe.spec.js` for the 3D view, plus `a11y.spec.js` for axe WCAG A/AA, keyboard and CSP), with no known-bug
   markers left. Chromium runs with SwiftShader (software WebGL) so the 3D view is tested on CI too.
   Never delete a `todo` or `test.fail`. Remove the marker only when the fix lands.
