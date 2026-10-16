@@ -37,6 +37,26 @@ test('the 3D view loads only when the simulator opens, without errors', async ({
   expect(errors).toEqual([]);
 });
 
+test('typing while the 3D view loads keeps the input box and its caret', async ({ page }) => {
+  // Hold Three.js back so the load finishes in the middle of typing (this raced on CI).
+  let release;
+  const gate = new Promise(r => { release = r; });
+  await page.route('**/three.min.js*', async route => { await gate; await route.continue(); });
+  await page.click('#nav button[data-page="simulator"]');
+  const box = page.locator('#final');
+  await box.evaluate(el => { el.dataset.marker = 'same'; });
+  await box.click();
+  await page.keyboard.press('Control+A');
+  await page.keyboard.type('4');
+  release();
+  await page.waitForSelector('#latheHost canvas', { timeout: 15000 });
+  await page.keyboard.type('8');
+  await expect(box).toHaveValue('48');
+  await expect(box).toHaveAttribute('data-marker', 'same');   // the box was never rebuilt
+  await expect(box).toBeFocused();
+  await expect(page.locator('#latheToggle')).toHaveText('Pause');
+});
+
 test('the readout shows model predictions, matching the baseline at defaults', async ({ page }) => {
   await openSimulator(page);
   await expect(readout(page)).toContainText('MODEL PREDICTION');
